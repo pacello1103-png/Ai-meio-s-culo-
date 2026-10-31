@@ -25,7 +25,10 @@ h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.1}
 .wrap{max-width:720px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
 
 /* topo */
-.top{background:var(--plum);color:var(--cream);position:relative;overflow:hidden;padding-top:env(safe-area-inset-top,0px)}
+.top{background:var(--plum);color:var(--cream);position:relative;overflow:hidden}
+.joke{background:var(--gold2);color:var(--plum);text-align:center;font-family:var(--display);font-style:italic;font-weight:500;font-size:15px;padding-block:calc(7px + env(safe-area-inset-top,0px)) 7px;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+.joke b{font-style:normal;font-weight:700}
+.hero .jk{display:inline-block;background:var(--gold2);color:var(--plum);font-family:var(--display);font-style:italic;font-size:18px;border-radius:30px;padding:6px 16px;margin-bottom:22px;transform:rotate(-2deg)}
 .top::after{content:"";position:absolute;left:0;right:0;bottom:14px;height:44px;background:repeating-linear-gradient(to bottom,rgba(227,188,114,.35) 0 1px,transparent 1px 11px);pointer-events:none}
 .top .wrap{padding-block:18px 26px;position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 .top .k{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold2);font-weight:700}
@@ -337,7 +340,7 @@ function tabsHTML(tabs, cur, dots = {}){
   return `<nav class="tabs">${tabs.map(([k,label,ic]) => `<button data-tab="${k}" class="${cur===k?"on":""}" aria-current="${cur===k}">${ICONS[ic]}${dots[k]?'<span class="dot"></span>':""}${label}</button>`).join("")}</nav>`;
 }
 function topHTML(kicker, title, color = "", extra = ""){
-  return `<header class="top ${color}"><div class="wrap"><div class="grow"><div class="k">${kicker}</div><h1>${title}</h1>${extra}</div><div class="fifty">50</div></div></header>`;
+  return `<div class="joke"><b>50</b> = meio século… ai ai ai!</div><header class="top ${color}"><div class="wrap"><div class="grow"><div class="k">${kicker}</div><h1>${title}</h1>${extra}</div><div class="fifty">50</div></div></header>`;
 }
 async function wakeLock(){ try{ if ("wakeLock" in navigator) await navigator.wakeLock.request("screen"); }catch(e){} }
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") wakeLock(); });
@@ -615,6 +618,7 @@ function Guest(room){
 
   function welcome(){
     $app.innerHTML = `<section class="hero"><div class="staff"></div><div class="wrap">
+      <div class="jk">50 = meio século… ai ai ai!</div>
       <div class="big">50</div><div class="name">Cristina</div>
       <h2>Quem conhece melhor a Cristina?</h2>
       <form id="join"><label class="label" for="nm" style="color:var(--gold2)">O teu nome</label>
@@ -733,7 +737,7 @@ if (!window.Peer){
 } else if (IS_HOST) Host();
 else if (ROOM_PARAM) Guest(ROOM_PARAM);
 else {
-  $app.innerHTML = `<section class="hero"><div class="staff"></div><div class="wrap"><div class="big">50</div><div class="name">Cristina</div>
+  $app.innerHTML = `<section class="hero"><div class="staff"></div><div class="wrap"><div class="jk">50 = meio século… ai ai ai!</div><div class="big">50</div><div class="name">Cristina</div>
     <h2>Para jogar, abre o link que recebeste.</h2>
     <p style="margin-top:10px;opacity:.85;max-width:420px">É o apresentador que envia o link da festa a cada convidado.</p>
     <a class="btn gold" href="?apresentador" style="margin-top:22px;text-decoration:none">Sou o apresentador</a></div></section>`;

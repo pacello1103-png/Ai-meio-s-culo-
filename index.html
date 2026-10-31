@@ -180,6 +180,42 @@ main{padding-block:18px 24px}
 .bigscreen h1{font-size:clamp(28px,6vw,64px)}
 .bigscreen .srow{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
 .bigscreen .srow .pt,.bigscreen .srow .nm{color:#fff}
+
+/* revelação final */
+.reveal{position:fixed;inset:0;z-index:60;background:radial-gradient(120% 80% at 50% 0%,#7A3566 0%,#4A1F3D 55%,#2E1227 100%);color:#fff;overflow:auto;padding:max(20px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.reveal::before{content:"";position:fixed;left:0;right:0;top:30%;height:150px;background:repeating-linear-gradient(to bottom,rgba(227,188,114,.18) 0 1px,transparent 1px 37px);pointer-events:none}
+.reveal canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.rv-in{position:relative;z-index:1;max-width:760px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:14px}
+.rv-k{align-self:center;background:var(--gold2);color:var(--plum);font-family:var(--display);font-style:italic;border-radius:30px;padding:5px 14px;font-size:15px;transform:rotate(-2deg)}
+.rv-stage{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.rv-title{font-family:var(--display);font-size:clamp(24px,6vw,44px);font-style:italic;color:var(--gold2);animation:rvFade .6s ease both}
+.rv-count{font-family:var(--display);font-weight:700;font-size:clamp(140px,40vw,260px);line-height:1;color:#fff;text-shadow:0 0 40px rgba(227,188,114,.6);animation:rvPop .9s cubic-bezier(.2,1.6,.4,1) both}
+.rv-rows{display:flex;flex-direction:column;gap:12px}
+.rv-row{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:14px 16px;opacity:0;transform:translateY(40px) scale(.96);transition:opacity .6s ease, transform .7s cubic-bezier(.2,1.4,.4,1)}
+.rv-row.in{opacity:1;transform:none}
+.rv-row .rk{font-family:var(--display);font-weight:700;font-size:28px;color:var(--gold2);min-width:48px}
+.rv-row .nm{font-family:var(--display);font-weight:700;font-size:clamp(20px,5vw,30px)}
+.rv-row .bar{height:10px;background:rgba(255,255,255,.12);border-radius:10px;overflow:hidden;margin-top:8px}
+.rv-row .bar i{display:block;height:100%;width:0;border-radius:10px;transition:width 1.3s cubic-bezier(.2,.9,.3,1)}
+.rv-row .pt{font-family:var(--display);font-weight:700;font-size:clamp(32px,8vw,52px);font-variant-numeric:tabular-nums;min-width:70px;text-align:right}
+.rv-row.win{background:linear-gradient(135deg,#E3BC72,#C2913F);color:var(--plum);border:0;box-shadow:0 0 0 4px rgba(227,188,114,.35),0 20px 60px rgba(227,188,114,.45)}
+.rv-row.win.in{animation:rvWin 1.6s ease-in-out .7s infinite}
+.rv-row.win .rk{color:var(--plum)}
+.rv-row.win .bar{background:rgba(74,31,61,.18)}
+.rv-row.win .bar i{background:var(--plum)!important}
+.rv-crown{width:56px;height:40px;margin:0 auto;animation:rvDrop .8s cubic-bezier(.2,1.6,.4,1) both}
+.rv-end{text-align:center;animation:rvFade .8s ease both;display:flex;flex-direction:column;gap:6px;align-items:center}
+.rv-end h2{font-size:clamp(28px,7vw,48px);color:#fff}
+.rv-end h2 em{color:var(--gold2)}
+.rv-end p{font-family:var(--display);font-style:italic;font-size:clamp(18px,4.5vw,26px);color:var(--rose)}
+.rv-close{align-self:center;margin-top:auto}
+@keyframes rvPop{0%{transform:scale(.3);opacity:0}40%{opacity:1}100%{transform:scale(1)}}
+@keyframes rvFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes rvWin{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+@keyframes rvDrop{from{transform:translateY(-60px) rotate(-20deg);opacity:0}to{transform:none;opacity:1}}
+.rv-shake .rv-in{animation:rvShake .5s ease}
+@keyframes rvShake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){.rv-row{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -282,8 +318,42 @@ const LIVE = [
   {t:"Telefone Estragado", d:"Um jogador ouve uma música nos auscultadores e trauteia-a ao ouvido do seguinte. O último canta em voz alta."},
   {t:"Maestro Mudo", d:"Um jogador rege a equipa só com gestos até eles adivinharem e cantarem a música."},
   {t:"Karaoke às Cegas", d:"Corta-se o som a meio de uma música conhecida. A equipa continua a cantar no tempo certo."},
-  {t:"Versão Espelho", d:"A Cristina e o marido, de costas um para o outro, respondem com placas “EU” e “ELE”. As equipas apostam se vão concordar."},
+  {t:"Versão Espelho", d:"A Cristina e o marido sentam-se de costas um para o outro. A cada pergunta, levanta a mão quem acha que é. Se levantarem os dois, ou nenhum, discordaram!",
+   qs: null},
 ];
+const MIRROR = [
+  "Quem cozinha melhor?",
+  "Quem se atrasa sempre?",
+  "Quem ressona mais alto?",
+  "Quem deu o primeiro passo?",
+  "Quem disse “amo-te” primeiro?",
+  "Quem ganha sempre as discussões?",
+  "Quem pede desculpa primeiro?",
+  "Quem chora nos filmes?",
+  "Quem gasta mais dinheiro?",
+  "Quem é mais teimoso?",
+  "Quem conduz pior?",
+  "Quem demora mais a arrumar-se para sair?",
+  "Quem perde mais vezes as chaves?",
+  "Quem manda no comando da televisão?",
+  "Quem acorda mais mal-disposto?",
+  "Quem adormece primeiro no sofá?",
+  "Quem fala mais tempo ao telefone?",
+  "Quem é mais romântico?",
+  "Quem é mais ciumento?",
+  "Quem se esquece mais dos aniversários?",
+  "Quem tem mais paciência com os filhos?",
+  "Quem é o preferido dos filhos?",
+  "Quem dança pior?",
+  "Quem canta mais desafinado no duche?",
+  "Quem faria a pior figura num reality show?",
+  "Quem sobreviveria menos tempo numa ilha deserta?",
+  "Quem tem mais pares de sapatos?",
+  "Quem é mais desarrumado?",
+  "Quem se queixa mais do frio?",
+  "Quem vai dizer “estou velho” primeiro?",
+];
+LIVE.find(x => x.t === "Versão Espelho").qs = MIRROR;
 const TEAM_NAMES = ["Clarinetes","Colcheias","Fermatas","Bemóis","Sustenidos","Semínimas"];
 const LETTERS = "ABCDEFGHIJKLMNOP".split("");
 
@@ -345,11 +415,116 @@ function topHTML(kicker, title, color = "", extra = ""){
 async function wakeLock(){ try{ if ("wakeLock" in navigator) await navigator.wakeLock.request("screen"); }catch(e){} }
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") wakeLock(); });
 
+
+/* ================= REVELAÇÃO FINAL ================= */
+const CROWN = '<svg class="rv-crown" viewBox="0 0 56 40" aria-hidden="true"><path d="M4 34 L8 10 L19 22 L28 4 L37 22 L48 10 L52 34 Z" fill="#E3BC72" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="10" r="3.5" fill="#E07A5F"/><circle cx="28" cy="4" r="3.5" fill="#E07A5F"/><circle cx="48" cy="10" r="3.5" fill="#E07A5F"/><rect x="4" y="34" width="48" height="5" rx="2" fill="#C2913F"/></svg>';
+function audio(){ try{ const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; window._ac = window._ac || new AC(); if (window._ac.state === "suspended") window._ac.resume(); return window._ac; }catch(e){ return null; } }
+function sound(kind){
+  const ac = audio(); if (!ac) return;
+  try{
+    const t0 = ac.currentTime + .02;
+    const tone = (f, at, dur, vol = .18, type = "triangle") => { const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, t0 + at); g.gain.linearRampToValueAtTime(vol, t0 + at + .02); g.gain.exponentialRampToValueAtTime(.001, t0 + at + dur); o.connect(g).connect(ac.destination); o.start(t0 + at); o.stop(t0 + at + dur + .05); };
+    if (kind === "roll"){
+      const sec = 2.9, len = Math.floor(ac.sampleRate * sec), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++){ const tt = i / ac.sampleRate, beat = (tt * 24) % 1; d[i] = (Math.random() * 2 - 1) * Math.exp(-beat * 8) * (.25 + .75 * tt / sec); }
+      const src = ac.createBufferSource(); src.buffer = buf; const f = ac.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 700; f.Q.value = .7; const g = ac.createGain(); g.gain.value = .9;
+      src.connect(f).connect(g).connect(ac.destination); src.start(t0);
+      tone(98, sec - .05, .5, .35, "sine");
+    }
+    if (kind === "tick"){ tone(392, 0, .18, .14); tone(523.25, .09, .3, .14); }
+    if (kind === "suspense"){ [261.63, 277.18, 293.66, 311.13].forEach((f,i) => tone(f, i * .32, .3, .08, "sawtooth")); }
+    if (kind === "win"){
+      [[523.25,0,.2],[659.25,.14,.2],[783.99,.28,.2],[1046.5,.42,.9]].forEach(([f,a,dd]) => { tone(f, a, dd, .2); tone(f/2, a, dd, .08, "square"); });
+      [523.25,659.25,783.99].forEach(f => tone(f, 1.0, 1.6, .1));
+      [783.99, 880, 987.77, 1046.5].forEach((f,i) => tone(f, 1.5 + i*.09, .25, .09));
+    }
+  }catch(e){}
+}
+function confetti(canvas, ms){
+  const ctx = canvas.getContext("2d"), dpr = Math.min(2, window.devicePixelRatio || 1);
+  const size = () => { canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr; };
+  size(); addEventListener("resize", size);
+  const cols = ["#E3BC72","#E07A5F","#F4DCD3","#2F7F7A","#FFFFFF","#C2913F"], glyphs = ["♪","♫","♩","♬"];
+  const parts = [];
+  const burst = (x, y, n, spread) => { for (let i = 0; i < n; i++){ const a = -Math.PI/2 + (Math.random() - .5) * spread, v = 7 + Math.random() * 11;
+    parts.push({x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() * 6.3, vr: (Math.random() - .5) * .3, c: cols[i % cols.length], g: Math.random() < .25 ? glyphs[i % 4] : null, w: 6 + Math.random() * 7, h: 4 + Math.random() * 5, life: 0}); } };
+  if (!ms) return () => {};
+  burst(innerWidth * .5, innerHeight * .45, 160, Math.PI * 1.6);
+  const side = setTimeout(() => { burst(innerWidth * .1, innerHeight, 90, .8); burst(innerWidth * .9, innerHeight, 90, .8); }, 450);
+  const rain = setInterval(() => { for (let i = 0; i < 6; i++) parts.push({x: Math.random() * innerWidth, y: -20, vx: (Math.random() - .5) * 2, vy: 2 + Math.random() * 2, r: Math.random() * 6, vr: (Math.random() - .5) * .2, c: cols[i % cols.length], g: Math.random() < .35 ? glyphs[i % 4] : null, w: 7, h: 5, life: 0}); }, 120);
+  const stopRain = setTimeout(() => clearInterval(rain), Math.max(0, ms - 1500));
+  const start = performance.now(); let stop = false;
+  (function frame(now){
+    if (stop) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (const p of parts){ p.vy += .28; p.vx *= .99; p.vy *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life++;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c;
+      if (p.g){ ctx.font = "bold 24px Georgia, serif"; ctx.textAlign = "center"; ctx.fillText(p.g, 0, 8); }
+      else ctx.fillRect(-p.w/2, -p.h/2, p.w, Math.cos(p.life * .15) * p.h);
+      ctx.restore(); }
+    for (let i = parts.length - 1; i >= 0; i--) if (parts[i].y > innerHeight + 40) parts.splice(i, 1);
+    if (now - start < ms || parts.length) requestAnimationFrame(frame); else ctx.clearRect(0, 0, innerWidth, innerHeight);
+  })(start);
+  return () => { stop = true; clearInterval(rain); clearTimeout(side); clearTimeout(stopRain); removeEventListener("resize", size); };
+}
+function countUp(el, to, ms){
+  if (!ms || to <= 0){ el.textContent = to; return; }
+  const t0 = performance.now();
+  (function f(now){ const k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e); if (k < 1) requestAnimationFrame(f); })(t0);
+}
+let revealOpen = null;
+async function runReveal(teams, sc){
+  if (revealOpen) revealOpen();
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const list = teams.map(t => ({...t, p: sc[t.id] || 0})).sort((a,b) => a.p - b.p);
+  if (!list.length) return;
+  const max = Math.max(1, ...list.map(t => t.p)), top = list[list.length - 1];
+  const tied = list.filter(t => t.p === top.p);
+  const ov = document.createElement("div"); ov.className = "reveal"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-label", "Revelação do vencedor");
+  ov.innerHTML = `<canvas></canvas><div class="rv-in"><div class="rv-k">50 = meio século… ai ai ai!</div><div class="rv-stage"></div><div class="rv-rows"></div><div class="rv-end" hidden></div><button class="btn gold rv-close">Fechar</button></div>`;
+  document.body.appendChild(ov);
+  let alive = true, stopConf = null;
+  const close = () => { alive = false; stopConf && stopConf(); ov.remove(); revealOpen = null; };
+  revealOpen = close;
+  ov.querySelector(".rv-close").addEventListener("click", close);
+  const stage = ov.querySelector(".rv-stage"), rows = ov.querySelector(".rv-rows"), end = ov.querySelector(".rv-end");
+  const wait = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
+  if (!reduce){
+    sound("roll");
+    for (const n of [3,2,1]){ if (!alive) return; stage.innerHTML = `<div class="rv-title">Quem conhece melhor a Cristina?</div><div class="rv-count">${n}</div>`; await wait(950); }
+  }
+  stage.innerHTML = "";
+  for (let i = 0; i < list.length; i++){
+    if (!alive) return;
+    const t = list[i], isTop = i === list.length - 1, rank = list.filter(x => x.p > t.p).length + 1;
+    if (isTop && list.length > 1 && !reduce){ stage.innerHTML = `<div class="rv-title">…e em primeiro lugar…</div>`; sound("suspense"); await wait(1700); stage.innerHTML = ""; }
+    if (!alive) return;
+    const win = t.p === top.p;
+    const row = document.createElement("div"); row.className = "rv-row" + (win ? " win" : "");
+    row.innerHTML = `<div class="rk">${rank}º</div><div class="grow"><div class="nm">${esc(t.name)}</div><div class="bar"><i class="c${t.c}"></i></div></div><div class="pt">0</div>`;
+    rows.prepend(row);
+    requestAnimationFrame(() => requestAnimationFrame(() => { row.classList.add("in"); row.querySelector(".bar i").style.width = (t.p / max * 100) + "%"; }));
+    countUp(row.querySelector(".pt"), t.p, reduce ? 0 : 1300);
+    if (!isTop){ sound("tick"); await wait(1700); }
+  }
+  if (!alive) return;
+  await wait(900);
+  if (!alive) return;
+  sound("win");
+  ov.classList.add("rv-shake");
+  stopConf = confetti(ov.querySelector("canvas"), reduce ? 0 : 8000);
+  end.hidden = false;
+  end.innerHTML = tied.length > 1
+    ? `${CROWN}<h2>Empate entre <em>${tied.map(t => esc(t.name)).join(" e ")}</em>!</h2><p>Afinal toda a gente conhece bem a Cristina.</p><p>Parabéns, Cristina! Meio século, ai ai ai!</p>`
+    : `${CROWN}<h2><em>${esc(top.name)}</em> são os Especialistas em Cristina!</h2><p>Parabéns, Cristina! Meio século, ai ai ai!</p>`;
+  rows.before(end);
+}
+
 /* ================= APRESENTADOR ================= */
 function Host(){
   let room = ls.get("c50-room", null);
   if (!room){ room = "cristina50-" + rid(8); ls.set("c50-room", room); }
-  const blank = () => ({ teams: [0,1].map(i => ({id: rid(5), name: TEAM_NAMES[i], c: i})), players:{}, answers:{}, marks:{}, order:{}, correct:[], lifeScored:false, bonus:{}, phase:{k:"lobby", q:0, live:0}, locked:false });
+  const blank = () => ({ teams: [0,1].map(i => ({id: rid(5), name: TEAM_NAMES[i], c: i})), players:{}, answers:{}, marks:{}, order:{}, correct:[], lifeScored:false, bonus:{}, phase:{k:"lobby", q:0, live:0, mq:0}, locked:false });
   let S = ls.get("c50-state", null) || blank();
   let tab = "sala", net = "a ligar", peer = null, sel = null, confirmReset = false, big = false;
   const conns = new Map();
@@ -375,12 +550,12 @@ function Host(){
     return {
       teams: S.teams,
       players: Object.entries(S.players).map(([id,p]) => ({id, name:p.name, team:p.team})),
-      phase: S.phase, locked: S.locked,
+      phase: S.phase, locked: S.locked, revealAt: S.revealAt || 0,
       q: S.phase.k === "quiz" ? {i:qi, total:Q.length, ...q} : null,
       teamAnswer: team && S.answers[qi] ? S.answers[qi][team] || null : null,
       order: team ? S.order[team] || [] : [],
       lifeResult: S.lifeScored ? S.correct : null,
-      live: S.phase.k === "live" ? LIVE[S.phase.live] : null,
+      live: S.phase.k === "live" ? {...LIVE[S.phase.live], cur: LIVE[S.phase.live].qs ? {i: S.phase.mq || 0, n: LIVE[S.phase.live].qs.length, t: LIVE[S.phase.live].qs[S.phase.mq || 0]} : null, qs: undefined} : null,
       scores: scoresOf(S),
       me: me ? {name: me.name, team: me.team, mission: me.mission != null ? me.mission : null, done: !!me.done, approved: !!me.approved, changes: (me.rejected||[]).length} : null,
     };
@@ -505,7 +680,14 @@ function Host(){
     return `<div class="card stack"><div class="label">Jogo ao vivo</div>
       <div class="phase">${LIVE.map((x,i) => `<button class="${i===S.phase.live?"on":""}" data-act="pickLive" data-i="${i}">${esc(x.t)}</button>`).join("")}</div></div>
       <div class="qcard"><div class="label">Agora no ecrã de todos</div><h2>${esc(g.t)}</h2><p class="muted" style="margin-top:8px">${esc(g.d)}</p></div>
+      ${g.qs ? mirrorPanel(g) : ""}
       <div class="card stack"><div class="label">Dar notas</div>${bonusRows()}</div>`;
+  }
+  function mirrorPanel(g){
+    const i = S.phase.mq || 0;
+    return `<div class="qcard" style="background:var(--coral);border:0;color:#fff"><div class="num" style="color:rgba(255,255,255,.25)">${i+1}</div><div class="label" style="color:#fff">Pergunta ${i+1} de ${g.qs.length} · lê em voz alta</div><h2 style="color:#fff;font-size:30px">${esc(g.qs[i])}</h2><p style="margin-top:8px;opacity:.9;position:relative">Mãos no ar!</p></div>
+      <div class="row"><button class="btn sm ghost" data-act="prevM" ${i===0?"disabled":""}>‹ Anterior</button><span class="grow muted" style="text-align:center">${i+1} de ${g.qs.length}</span><button class="btn sm" data-act="nextM" ${i===g.qs.length-1?"disabled":""}>Seguinte ›</button></div>
+      <div class="card stack" style="gap:6px"><div class="label">Todas as perguntas · toca para saltar</div>${g.qs.map((q,k) => `<button class="ev ${k===i?"on":""}" data-act="goM" data-i="${k}" style="padding:8px 10px"><span class="pos">${k+1}</span><span>${esc(q)}</span></button>`).join("")}</div>`;
   }
   function bonusRows(){
     return S.teams.map(t => `<div class="row"><span class="sw c${t.c}" style="width:16px;height:16px;border-radius:5px"></span><b class="grow">${esc(t.name)}</b>
@@ -535,7 +717,7 @@ function Host(){
       body = `<div class="card stack"><div class="label">O que aparece nos telemóveis</div><div class="phase">
         ${[["lobby","Equipas"],["quiz","Perguntas"],["life","Linha do tempo"],["live","Cantar"],["end","Final"]].map(([v,l]) => `<button class="${k===v?"on":""}" data-act="phase" data-k="${v}">${l}</button>`).join("")}</div></div>`
         + (k === "quiz" ? `<div class="stack">${quizPanel()}</div>` : k === "life" ? lifePanel() : k === "live" ? livePanel()
-          : k === "end" ? `<div class="card stack"><h2>Grand Finale</h2><p>Todos veem a classificação final.</p><button class="btn full gold" data-act="big">Mostrar em ecrã grande</button></div>`
+          : k === "end" ? `<div class="card stack"><h2>Grand Finale</h2><p>Os telemóveis de todos fazem a revelação ao mesmo tempo. Liga o teu à TV ou a uma coluna para a fanfarra.</p><button class="btn full gold" data-act="reveal">Revelar o vencedor</button><button class="btn full ghost" data-act="big">Só a classificação</button></div>`
           : `<div class="card"><h2>Hora de formar equipas</h2><p>Os convidados escolhem a equipa no telemóvel. Quando estiverem todos, carrega em Perguntas.</p></div>`);
     }
     if (tab === "missoes"){
@@ -548,7 +730,7 @@ function Host(){
           ${p.done?`<div class="row"><button class="btn sm ${p.approved?"ghost":"teal"}" data-act="approve" data-id="${p.id}">${p.approved?"Retirar aprovação":"Aprovar · +3"}</button></div>`:""}</div>`; }).join("") : '<p class="muted">Ainda ninguém entrou.</p>'}</div>`;
     }
     if (tab === "pontos"){
-      body = `<div class="card stack"><h2>Classificação</h2>${scoreHTML(S.teams, scoresOf(S))}<button class="btn full gold" data-act="big">Ecrã grande</button></div>
+      body = `<div class="card stack"><h2>Classificação</h2>${scoreHTML(S.teams, scoresOf(S))}<button class="btn full gold" data-act="reveal">Revelar o vencedor</button><button class="btn full ghost" data-act="big">Ecrã grande</button></div>
         <div class="card stack"><div class="label">Notas extra (jogos ao vivo, Versão Espelho…)</div>${bonusRows()}</div>`;
     }
     const pend = Object.values(S.players).some(p => p.done && !p.approved);
@@ -575,10 +757,14 @@ function Host(){
     if (a === "setCorrect"){ if (S.lifeScored) return toast("Já corrigiste. Reabre para mudar."); const L = el.dataset.l, i = S.correct.indexOf(L); if (i >= 0) S.correct.splice(i, 1); else S.correct.push(L); return changed(); }
     if (a === "clearCorrect"){ S.correct = []; S.lifeScored = false; return changed(); }
     if (a === "scoreLife"){ S.lifeScored = !S.lifeScored; return changed(); }
-    if (a === "pickLive"){ S.phase.live = Number(el.dataset.i); return changed(); }
+    if (a === "pickLive"){ S.phase.live = Number(el.dataset.i); S.phase.mq = 0; return changed(); }
+    if (a === "prevM"){ S.phase.mq = Math.max(0, (S.phase.mq||0) - 1); return changed(); }
+    if (a === "nextM"){ S.phase.mq = Math.min(LIVE[S.phase.live].qs.length - 1, (S.phase.mq||0) + 1); return changed(); }
+    if (a === "goM"){ S.phase.mq = Number(el.dataset.i); return changed(); }
     if (a === "bonus"){ S.bonus[id] = (S.bonus[id] || 0) + Number(el.dataset.v); return changed(); }
     if (a === "approve"){ const p = S.players[id]; if (p){ p.approved = !p.approved; changed(); } return; }
     if (a === "big"){ big = !big; return render(); }
+    if (a === "reveal"){ audio(); S.phase.k = "end"; S.revealAt = Date.now(); changed(); runReveal(S.teams, scoresOf(S)); return; }
     if (a === "copy"){ const l = guestLink(); (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(() => toast("Link copiado"), () => { const r = document.createRange(); r.selectNodeContents(document.getElementById("lk")); getSelection().removeAllRanges(); getSelection().addRange(r); toast("Seleciona e copia o link"); }); return; }
     if (a === "askReset"){ confirmReset = true; return render(); }
     if (a === "noReset"){ confirmReset = false; return render(); }
@@ -596,7 +782,7 @@ function Guest(room){
   let pid = ls.get("c50-pid", null); if (!pid){ pid = rid(12); ls.set("c50-pid", pid); }
   let name = ls.get("c50-name", "");
   let V = null, tab = "jogo", net = "a ligar", peer = null, conn = null, retryT = null, flip = false, sending = false;
-  let draft = ls.get("c50-draft", {});
+  let draft = ls.get("c50-draft", {}); let seenReveal = null;
 
   function send(m){ if (conn && conn.open){ try{ conn.send({...m, pid}); return true; }catch(e){} } toast("Sem ligação. A tentar de novo…"); return false; }
   function connect(){
@@ -607,7 +793,7 @@ function Guest(room){
     peer.on("open", () => {
       conn = peer.connect(room, {reliable: true});
       conn.on("open", () => { net = "online"; if (name) conn.send({t: "hello", pid, name}); render(); });
-      conn.on("data", d => { if (d && d.t === "state"){ if (!d.s.me && name) conn.send({t: "hello", pid, name}); const prevPhase = V && V.phase && V.phase.k + V.phase.q; V = d.s; if (V.phase && prevPhase !== V.phase.k + V.phase.q && tab !== "missao") tab = V.me && V.me.team ? "jogo" : tab; render(); } });
+      conn.on("data", d => { if (d && d.t === "state"){ if (!d.s.me && name) conn.send({t: "hello", pid, name}); const prevPhase = V && V.phase && V.phase.k + V.phase.q + "." + V.phase.mq; V = d.s; if (seenReveal === null) seenReveal = V.revealAt; else if (V.revealAt && V.revealAt !== seenReveal){ seenReveal = V.revealAt; setTimeout(() => runReveal(V.teams, V.scores), 200); } if (V.phase && prevPhase !== V.phase.k + V.phase.q + "." + V.phase.mq && tab !== "missao") tab = V.me && V.me.team ? "jogo" : tab; render(); } });
       conn.on("close", retry); conn.on("error", retry);
       setTimeout(() => { if (net !== "online") retry(); }, 9000);
     });
@@ -664,8 +850,8 @@ function Guest(room){
           return `<button class="ev ${cls}" data-act="life" data-l="${L}" ${res?"disabled":""}><span class="pos">${pos>=0?pos+1:"·"}</span><span>${esc(LIFE[i])}</span></button>`; }).join("")}</div>
         ${res?"":`<div class="row"><span class="grow muted">${o.length} de ${LIFE.length}</span><button class="btn sm ghost" data-act="lifeClear">Recomeçar</button></div>`}`;
     }
-    if (ph === "live" && V.live) return `<div class="qcard" style="background:var(--gold);border:0;color:var(--plum)"><div class="label" style="color:var(--plum)">Toda a gente canta</div><h2>${esc(V.live.t)}</h2><p style="margin-top:10px;font-size:17px">${esc(V.live.d)}</p></div><p class="muted" style="text-align:center">Olhem para o apresentador.</p>`;
-    if (ph === "end") return `<div class="qcard" style="background:var(--plum);border:0;color:#fff"><div class="label">Grand Finale</div><h2 style="color:#fff">Obrigado por jogarem!</h2><p style="margin-top:8px;opacity:.9">E agora, bolo.</p></div>${scoreHTML(V.teams, V.scores)}`;
+    if (ph === "live" && V.live) return `<div class="qcard" style="background:var(--gold);border:0;color:var(--plum)"><div class="label" style="color:var(--plum)">Toda a gente canta</div><h2>${esc(V.live.t)}</h2><p style="margin-top:10px;font-size:17px">${esc(V.live.d)}</p></div>${V.live.cur ? `<div class="qcard" style="background:var(--coral);border:0;color:#fff"><div class="num" style="color:rgba(255,255,255,.25)">${V.live.cur.i+1}</div><div class="label" style="color:#fff">Pergunta ${V.live.cur.i+1} de ${V.live.cur.n}</div><h2 style="color:#fff;font-size:30px">${esc(V.live.cur.t)}</h2><p style="margin-top:8px;opacity:.9;position:relative">Vão concordar? Olhem para as mãos!</p></div>` : ""}<p class="muted" style="text-align:center">Olhem para o apresentador.</p>`;
+    if (ph === "end") return `<div class="qcard" style="background:var(--plum);border:0;color:#fff"><div class="label">Grand Finale</div><h2 style="color:#fff">Obrigado por jogarem!</h2><p style="margin-top:8px;opacity:.9">E agora, bolo.</p></div>${scoreHTML(V.teams, V.scores)}<button class="btn full gold" data-act="replay">Ver a revelação outra vez</button>`;
     return `<div class="card wait"><p>À espera do apresentador…</p></div>`;
   }
 
@@ -716,6 +902,7 @@ function Guest(room){
     });
   }
 
+  document.addEventListener("pointerdown", () => audio(), {once: true});
   $app.addEventListener("click", e => {
     const tb = e.target.closest("[data-tab]"); if (tb){ tab = tb.dataset.tab; render(); window.scrollTo(0,0); return; }
     const el = e.target.closest("[data-act]"); if (!el || !V) return;
@@ -724,6 +911,7 @@ function Guest(room){
     if (a === "opt"){ const i = document.getElementById("ans-" + V.q.i); if (i){ i.value = el.dataset.v; draft[V.q.i] = i.value; ls.set("c50-draft", draft); } }
     if (a === "life"){ const L = el.dataset.l, o = [...(V.order || [])], i = o.indexOf(L); if (i >= 0) o.splice(i, 1); else o.push(L); V.order = o; render(); send({t: "order", order: o}); }
     if (a === "lifeClear"){ V.order = []; render(); send({t: "order", order: []}); }
+    if (a === "replay"){ audio(); runReveal(V.teams, V.scores); }
     if (a === "draw"){ flip = true; send({t: "mission", op: "draw"}); }
     if (a === "newMission"){ flip = true; send({t: "mission", op: "new"}); }
   });

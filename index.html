@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cristina 50</title>
+<meta name="theme-color" content="#4A1F3D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,700;1,400;1,500&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Concerto em cartões: faixas de cor por andamento, pauta como textura */
+:root{
+  --plum:#4A1F3D; --plum2:#7A3566; --coral:#E07A5F; --teal:#2F7F7A; --gold:#C2913F; --gold2:#E3BC72;
+  --cream:#FCF7EF; --paper:#FFFFFF; --rose:#F4DCD3; --ink:#2B1A26; --muted:#806B76; --line:#EFE2D4;
+  --ok:#2F7F7A; --display:"Lora",Georgia,serif; --body:"Figtree",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--cream);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body{min-height:100dvh;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold2);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.1}
+.wrap{max-width:720px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+
+/* topo */
+.top{background:var(--plum);color:var(--cream);position:relative;overflow:hidden;padding-top:env(safe-area-inset-top,0px)}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:14px;height:44px;background:repeating-linear-gradient(to bottom,rgba(227,188,114,.35) 0 1px,transparent 1px 11px);pointer-events:none}
+.top .wrap{padding-block:18px 26px;position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.top .k{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold2);font-weight:700}
+.top h1{font-size:28px;margin-top:4px}
+.top h1 em{font-weight:400;color:var(--gold2)}
+.top .fifty{font-family:var(--display);font-weight:700;font-size:64px;line-height:.8;color:rgba(227,188,114,.35)}
+.top.coral{background:var(--coral)} .top.teal{background:var(--teal)} .top.gold{background:var(--gold)}
+.top.coral .k,.top.teal .k,.top.gold .k{color:#fff;opacity:.85}
+.top.coral h1 em,.top.teal h1 em,.top.gold h1 em{color:#fff}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.12);border-radius:20px;padding:4px 10px;margin-top:8px}
+.status i{width:8px;height:8px;border-radius:50%;background:#E3BC72}
+.status.on i{background:#7BD389}
+.status.off i{background:#E07A5F}
+
+main{padding-block:18px 24px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px}
+.card h2{font-size:20px;color:var(--plum)}
+.card p{color:var(--muted)}
+.lead{font-family:var(--display);font-style:italic;color:var(--plum2);font-size:17px}
+.label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--gold)}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--plum);color:#fff;font-weight:700;border-radius:14px;padding:14px 18px;min-height:50px;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn.full{width:100%}
+.btn.ghost{background:transparent;color:var(--plum);border:2px solid var(--plum)}
+.btn.coral{background:var(--coral)} .btn.teal{background:var(--teal)} .btn.gold{background:var(--gold);color:var(--plum)}
+.btn.sm{min-height:38px;padding:8px 12px;border-radius:11px;font-size:14px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.field{width:100%;border:2px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px;font-size:17px}
+.field:focus{border-color:var(--gold2);outline:none}
+
+/* boas-vindas */
+.hero{background:var(--plum);color:var(--cream);min-height:100dvh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;padding-block:calc(30px + env(safe-area-inset-top,0px)) 30px}
+.hero::before{content:"";position:absolute;width:420px;height:420px;border-radius:50%;background:var(--plum2);right:-180px;top:-160px;opacity:.6}
+.hero::after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:var(--coral);left:-120px;bottom:-110px;opacity:.75}
+.hero .staff{position:absolute;left:0;right:0;top:34%;height:120px;background:repeating-linear-gradient(to bottom,rgba(227,188,114,.4) 0 1px,transparent 1px 30px)}
+.hero .wrap{position:relative;z-index:1;width:100%}
+.hero .big{font-family:var(--display);font-weight:700;font-size:150px;line-height:.8;color:var(--gold2);letter-spacing:-.05em}
+.hero .name{font-family:var(--display);font-style:italic;font-size:54px;margin-top:-18px;margin-left:10px}
+.hero h2{font-size:22px;margin-top:28px;font-weight:500}
+.hero form{margin-top:22px;display:flex;flex-direction:column;gap:10px;max-width:420px}
+.hero .field{border-color:transparent}
+
+/* equipas */
+.howto{display:flex;align-items:center;gap:14px;background:var(--rose);border-radius:18px;padding:14px}
+.howto svg{flex:none}
+.howto p{color:var(--plum);font-weight:600;font-size:15px}
+.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.team{aspect-ratio:1/1;border-radius:22px;padding:14px;color:#fff;display:flex;flex-direction:column;position:relative;overflow:hidden;text-align:left;transition:transform .15s, box-shadow .15s;max-width:100%}
+.team::after{content:"";position:absolute;left:0;right:0;top:46px;height:40px;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.22) 0 1px,transparent 1px 10px);pointer-events:none}
+.team h3{font-size:19px;position:relative;z-index:1}
+.team .n{font-size:12px;opacity:.85;font-weight:600;position:relative;z-index:1}
+.team .chips{margin-top:auto;display:flex;flex-wrap:wrap;gap:5px;position:relative;z-index:1}
+.chip{background:rgba(255,255,255,.22);border-radius:20px;padding:3px 9px;font-size:13px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip.me{background:#fff;color:var(--ink)}
+.team.mine{box-shadow:0 0 0 4px var(--gold2);transform:scale(1.02)}
+.team .tick{position:absolute;right:10px;top:10px;width:26px;height:26px;border-radius:50%;background:#fff;color:var(--plum);display:flex;align-items:center;justify-content:center;font-weight:800;z-index:2}
+.team.target{outline:3px dashed var(--gold2);outline-offset:3px}
+.c0{background:var(--plum)} .c1{background:var(--coral)} .c2{background:var(--teal)} .c3{background:var(--gold)} .c4{background:var(--plum2)} .c5{background:#3E5C8A}
+.t0{color:var(--plum)} .t1{color:var(--coral)} .t2{color:var(--teal)} .t3{color:var(--gold)} .t4{color:var(--plum2)} .t5{color:#3E5C8A}
+.pool{border:2px dashed var(--line);border-radius:18px;padding:12px;display:flex;flex-wrap:wrap;gap:6px;min-height:52px;align-items:center}
+.pool .chip{background:var(--rose);color:var(--plum)}
+.pchip{background:var(--rose);color:var(--plum);border-radius:20px;padding:6px 12px;font-weight:600;font-size:14px}
+.pchip.sel{background:var(--plum);color:#fff}
+.team .chips .pchip{background:rgba(255,255,255,.22);color:#fff;padding:3px 9px;font-size:13px}
+.team .chips .pchip.sel{background:#fff;color:var(--ink)}
+
+/* pergunta */
+.qcard{background:var(--paper);border-radius:22px;padding:22px 18px;border:1px solid var(--line);position:relative;overflow:hidden}
+.qcard .num{position:absolute;right:14px;top:4px;font-family:var(--display);font-weight:700;font-size:72px;color:var(--rose);line-height:1}
+.qcard h2{font-size:25px;color:var(--plum);position:relative;margin-top:6px;padding-right:40px}
+.qcard .pts{display:inline-block;background:var(--gold2);color:var(--plum);font-weight:700;font-size:12px;border-radius:20px;padding:3px 10px;margin-top:10px;position:relative}
+.qcard .pts.hard{background:var(--coral);color:#fff}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.opt{background:var(--rose);color:var(--plum);border-radius:20px;padding:8px 14px;font-weight:600}
+.teamans{background:var(--rose);border-radius:14px;padding:12px 14px}
+.teamans b{color:var(--plum)}
+.wait{text-align:center;padding:34px 18px}
+.wait svg{margin:0 auto 10px;display:block}
+.progress{height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--gold)}
+
+/* linha do tempo */
+.life{display:flex;flex-direction:column;gap:8px}
+.ev{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px dashed var(--gold2);border-radius:14px;padding:11px 12px;text-align:left;width:100%}
+.ev .pos{flex:none;width:34px;height:34px;border-radius:10px;background:var(--line);color:var(--muted);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700}
+.ev.on{border-style:solid;border-color:var(--teal);background:#EEF6F5}
+.ev.on .pos{background:var(--teal);color:#fff}
+.ev.good{border-color:var(--ok);background:#E6F3EE}
+.ev.bad{border-color:var(--coral);background:#FBEAE4}
+
+/* missão */
+.mission{border-radius:24px;padding:24px 20px;color:#fff;min-height:250px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;transform-style:preserve-3d}
+.mission::after{content:"";position:absolute;left:0;right:0;top:40%;height:60px;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.2) 0 1px,transparent 1px 12px)}
+.mission .k{font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;opacity:.85;position:relative;z-index:1}
+.mission h2{font-size:28px;position:relative;z-index:1}
+.mission .f{font-size:12px;font-style:italic;opacity:.8;position:relative;z-index:1}
+.mission.back{background:var(--plum);align-items:center;justify-content:center;text-align:center}
+.mission.back .q{font-family:var(--display);font-size:90px;color:var(--gold2);line-height:1;position:relative;z-index:1}
+.flip{animation:flip .55s ease}
+@keyframes flip{0%{transform:rotateY(90deg) scale(.95)}100%{transform:none}}
+.done{background:#E6F3EE;color:var(--ok);border-radius:14px;padding:12px 14px;font-weight:700}
+.photo{width:100%;border-radius:14px;max-height:340px;object-fit:cover}
+
+/* pontos */
+.score{display:flex;flex-direction:column;gap:10px}
+.srow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.srow .rk{font-family:var(--display);font-weight:700;font-size:24px;width:28px;color:var(--gold)}
+.srow .sw{width:18px;height:18px;border-radius:6px;flex:none}
+.srow .nm{flex:1;min-width:0;font-weight:700}
+.srow .bar{height:6px;border-radius:6px;margin-top:6px}
+.srow .pt{font-family:var(--display);font-weight:700;font-size:26px;color:var(--plum);font-variant-numeric:tabular-nums}
+.srow.first{border:2px solid var(--gold2)}
+
+/* tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-inline:max(8px,env(safe-area-inset-left,0px)) max(8px,env(safe-area-inset-right,0px));z-index:20}
+.tabs button{flex:1;max-width:150px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 9px;font-size:12px;font-weight:700;color:var(--muted)}
+.tabs button svg{width:24px;height:24px}
+.tabs button.on{color:var(--plum)}
+.tabs button.on svg{color:var(--coral)}
+.tabs .dot{width:7px;height:7px;border-radius:50%;background:var(--coral);position:absolute;margin-left:18px}
+
+/* apresentador */
+.phase{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+.phase button{border-radius:14px;padding:12px 8px;background:#fff;border:2px solid var(--line);font-weight:700;color:var(--plum);font-size:14px}
+.phase button.on{background:var(--plum);border-color:var(--plum);color:#fff}
+.ans{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.ans .sw{width:14px;height:44px;border-radius:5px;flex:none}
+.ans .tx{flex:1;min-width:0}
+.ans .tx b{display:block;font-size:13px;color:var(--muted)}
+.ans .tx span{font-size:17px;font-weight:600;overflow-wrap:anywhere}
+.mark{min-width:52px;min-height:44px;border-radius:12px;border:2px solid var(--line);font-weight:800;color:var(--muted)}
+.mark.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.qr{background:#fff;border-radius:18px;padding:16px;display:flex;justify-content:center}
+.linkbox{background:var(--rose);border-radius:12px;padding:10px 12px;font-size:14px;overflow-wrap:anywhere;color:var(--plum);font-weight:600}
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mitem{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.tag{display:inline-block;border-radius:20px;padding:2px 9px;font-size:12px;font-weight:700}
+.tag.wait{background:var(--rose);color:var(--plum)} .tag.ok{background:#E6F3EE;color:var(--ok)} .tag.go{background:var(--line);color:var(--muted)}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:40px;height:40px;border-radius:12px;background:var(--line);font-weight:800;font-size:18px;color:var(--plum)}
+.confirm{background:#FBEAE4;border-radius:14px;padding:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;z-index:40;max-width:calc(100% - 32px);text-align:center}
+.bigscreen{position:fixed;inset:0;background:var(--plum);color:#fff;z-index:50;display:flex;flex-direction:column;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px));overflow:auto}
+.bigscreen h1{font-size:clamp(28px,6vw,64px)}
+.bigscreen .srow{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15)}
+.bigscreen .srow .pt,.bigscreen .srow .nm{color:#fff}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+"use strict";
+/* ================= CONTEÚDO ================= */
+const Q = [
+  {s:"Origens", t:"Em que ano nasceu a Cristina?"},
+  {s:"Origens", t:"Em que país nasceu?"},
+  {s:"Origens", t:"Qual era a comida de que mais gostava em criança?"},
+  {s:"Origens", t:"E a comida que mais detestava?"},
+  {s:"A música da Cristina", t:"Que instrumento tocava?", o:["Piano","Violino","Clarinete","Guitarra"]},
+  {s:"A música da Cristina", t:"Em que cidade estudou música na universidade?", o:["Lisboa","Coimbra","Porto","Braga"]},
+  {s:"A música da Cristina", t:"Que idade tinha quando começou a tocar?"},
+  {s:"A música da Cristina", t:"Que série vê enquanto cozinha?"},
+  {s:"A música da Cristina", t:"Que música a faz chorar sempre?"},
+  {s:"A música da Cristina", t:"Que música canta alto no carro?"},
+  {s:"Gostos e manias", t:"Qual é a palavra que diz mais vezes?"},
+  {s:"Gostos e manias", t:"Que bebida pede sempre num café?"},
+  {s:"Gostos e manias", t:"Qual é a série a que não falha?"},
+  {s:"Gostos e manias", t:"O que é que a irrita mais em casa?"},
+  {s:"Gostos e manias", t:"Qual é a viagem de sonho que ainda não fez?"},
+  {s:"Gostos e manias", t:"Como conheceu o amor da vida dela?"},
+  {s:"Gostos e manias", t:"Qual era a alcunha dela em criança?"},
+  {s:"Gostos e manias", t:"Qual é o objeto de que nunca se separa?"},
+  {s:"Só para especialistas", t:"Quanto calça?", p:2},
+  {s:"Só para especialistas", t:"Se não fosse música, que profissão teria?", p:2},
+  {s:"Só para especialistas", t:"Qual foi o primeiro concerto a que assistiu?", p:2},
+  {s:"Só para especialistas", t:"Qual é o medo mais estranho que tem?", p:2},
+  {s:"A Cristina Responde", t:"Qual foi o momento mais embaraçoso da vida dela?", v:1},
+  {s:"A Cristina Responde", t:"Qual dos filhos dá mais trabalho?", v:1},
+  {s:"A Cristina Responde", t:"Que palavra em francês ainda usa?", v:1},
+  {s:"A Cristina Responde", t:"Qual foi a coisa mais engraçada que aconteceu num concerto dela?", v:1},
+  {s:"A Cristina Responde", t:"Que música já não aguenta ouvir nem mais uma vez?", v:1},
+  {s:"A Cristina Responde", t:"Se ganhasse o Euromilhões, o que comprava primeiro?", v:1},
+  {s:"A Cristina Responde", t:"Qual é a maior mania dela?", v:1},
+  {s:"A Cristina Responde", t:"Como se descreve em três palavras?", v:1},
+  {s:"A Cristina Responde", t:"Que idade sente que tem por dentro?", v:1},
+  {s:"A Cristina Responde", t:"Que conselho dava à Cristina de 20 anos?", v:1},
+  {s:"A Pergunta dos 50", t:"Quantas vezes disse “leva um casaco” na vida?", p:10, n:1},
+  {s:"A Pergunta dos 50", t:"Quantos alunos já teve?", p:10, n:1},
+  {s:"A Pergunta dos 50", t:"Quantos cafés bebeu desde os 18 anos?", p:10, n:1},
+  {s:"A Pergunta dos 50", t:"Quantas horas passou a tocar clarinete?", p:10, n:1},
+];
+const LIFE = [
+  "Toca pela primeira vez em público, com o coração aos saltos.",
+  "Entra na universidade para estudar música.",
+  "Nasce.",
+  "Dá a sua primeira aula como professora.",
+  "Pega num clarinete pela primeira vez.",
+  "Conhece o amor da sua vida.",
+  "Chega a Portugal, ainda bebé, ao colo dos pais.",
+  "Volta a estudar, agora para ensinar música.",
+  "Tira a carta de condução.",
+  "Termina o curso de clarinete.",
+  "Casa-se.",
+  "Primeiro dia de escola, de mochila às costas.",
+  "Nasce o primeiro filho.",
+  "Faz a primeira viagem sozinha, sem os pais.",
+  "Muda-se para a casa onde vive hoje.",
+  "Sopra 50 velas rodeada de quem mais gosta dela.",
+];
+const MISSIONS = [
+  "Tira uma foto à Cristina a comer uma batata.",
+  "Tira uma foto à Cristina a beber vinho.",
+  "Tira uma foto à pessoa mais nova da festa.",
+  "Tira uma foto à pessoa mais velha da festa.",
+  "Tira uma selfie com a Cristina a fazer uma careta.",
+  "Tira uma foto à Cristina a rir às gargalhadas.",
+  "Tira uma foto à Cristina a dançar.",
+  "Tira uma foto à Cristina com os óculos de outra pessoa.",
+  "Tira uma foto a 5 pessoas a fazer “50” com as mãos.",
+  "Tira uma foto à Cristina a abraçar alguém.",
+  "Tira uma foto à Cristina de boca cheia.",
+  "Tira uma foto a um brinde com pelo menos 6 copos.",
+  "Tira uma foto à Cristina de olhos fechados.",
+  "Tira uma foto a alguém vestido da mesma cor que a Cristina.",
+  "Tira uma foto à Cristina ao telemóvel.",
+  "Tira uma foto à Cristina a cantar.",
+  "Tira uma foto a alguém a chorar de rir.",
+  "Tira uma foto a alguém a bocejar.",
+  "Tira uma foto à Cristina a apontar para alguém.",
+  "Tira uma foto a alguém com um guardanapo na cabeça.",
+  "Tira uma foto à Cristina com a primeira fatia de bolo.",
+  "Tira uma foto à Cristina a tirar uma foto.",
+  "Tira uma foto à Cristina com as duas mãos no ar.",
+  "Tira uma foto a três gerações juntas.",
+];
+const LIVE = [
+  {t:"O Lá Perfeito", d:"Um jogador de cada equipa canta um “lá” sem ouvir nada antes. Mede-se num afinador. Quem chegar mais perto ganha."},
+  {t:"Ecos e Palmas", d:"A Cristina bate um ritmo com palmas e a equipa repete. Quem falhar sai. A última equipa de pé ganha."},
+  {t:"Adivinha a Canção", d:"A Cristina toca ou trauteia o início de músicas conhecidas. Primeira equipa a acertar ganha."},
+  {t:"Joyeux Anniversaire", d:"Cada equipa canta os parabéns em francês. A Cristina dá nota à pronúncia, de 1 a 5."},
+  {t:"Telefone Estragado", d:"Um jogador ouve uma música nos auscultadores e trauteia-a ao ouvido do seguinte. O último canta em voz alta."},
+  {t:"Maestro Mudo", d:"Um jogador rege a equipa só com gestos até eles adivinharem e cantarem a música."},
+  {t:"Karaoke às Cegas", d:"Corta-se o som a meio de uma música conhecida. A equipa continua a cantar no tempo certo."},
+  {t:"Versão Espelho", d:"A Cristina e o marido, de costas um para o outro, respondem com placas “EU” e “ELE”. As equipas apostam se vão concordar."},
+];
+const TEAM_NAMES = ["Clarinetes","Colcheias","Fermatas","Bemóis","Sustenidos","Semínimas"];
+const LETTERS = "ABCDEFGHIJKLMNOP".split("");
+
+/* ================= UTIL ================= */
+const $app = document.getElementById("app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ls = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const rid = n => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => "abcdefghjkmnpqrstuvwxyz23456789"[b % 31]).join("");
+let toastT;
+function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2200); }
+const params = new URLSearchParams(location.search);
+const IS_HOST = params.has("apresentador");
+const ROOM_PARAM = params.get("sala");
+const ICONS = {
+  game:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  team:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>',
+  card:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M12 8v4M12 16h.01"/></svg>',
+  trophy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>',
+  link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>',
+};
+/* desenho: uma pessoa a escolher entre dois quadrados */
+const HOWTO_SVG = `<svg width="92" height="64" viewBox="0 0 92 64" aria-hidden="true">
+  <rect x="2" y="6" width="34" height="34" rx="8" fill="#4A1F3D"/><rect x="56" y="6" width="34" height="34" rx="8" fill="#E07A5F"/>
+  <circle cx="13" cy="20" r="4" fill="#fff" opacity=".8"/><circle cx="25" cy="27" r="4" fill="#fff" opacity=".8"/>
+  <circle cx="68" cy="21" r="4" fill="#fff" opacity=".8"/>
+  <circle cx="46" cy="54" r="6" fill="#C2913F"/>
+  <path d="M46 46 C 46 38, 60 40, 66 33" fill="none" stroke="#C2913F" stroke-width="2.5" stroke-dasharray="3 3"/>
+  <path d="M62 30 l5 3 -2 5" fill="none" stroke="#C2913F" stroke-width="2.5" stroke-linecap="round"/>
+</svg>`;
+
+function scoresOf(S){
+  const sc = {}; S.teams.forEach(t => sc[t.id] = 0);
+  for (const qi in S.marks) for (const tid in S.marks[qi]) if (sc[tid] != null) sc[tid] += S.marks[qi][tid] || 0;
+  for (const pid in S.players){ const p = S.players[pid]; if (p.approved && sc[p.team] != null) sc[p.team] += 3; }
+  if (S.lifeScored && S.correct.length === LIFE.length){
+    for (const t of S.teams){ const o = S.order[t.id] || []; let n = 0; o.forEach((x,i) => { if (S.correct[i] === x) n++; }); sc[t.id] += n; }
+  }
+  for (const tid in S.bonus) if (sc[tid] != null) sc[tid] += S.bonus[tid] || 0;
+  return sc;
+}
+function scoreHTML(teams, sc){
+  const list = teams.map(t => ({...t, p: sc[t.id] || 0})).sort((a,b) => b.p - a.p);
+  const max = Math.max(1, ...list.map(t => t.p));
+  if (!list.length) return `<p class="muted">Ainda não há equipas.</p>`;
+  return `<div class="score">${list.map((t,i) => `<div class="srow ${i===0 && t.p>0 ? "first":""}">
+    <div class="rk">${i+1}</div>
+    <div class="grow"><div class="row" style="gap:8px"><span class="sw c${t.c}"></span><span class="nm">${esc(t.name)}</span></div><div class="bar c${t.c}" style="width:${Math.round(t.p/max*100)}%"></div></div>
+    <div class="pt">${t.p}</div></div>`).join("")}</div>`;
+}
+function tabsHTML(tabs, cur, dots = {}){
+  return `<nav class="tabs">${tabs.map(([k,label,ic]) => `<button data-tab="${k}" class="${cur===k?"on":""}" aria-current="${cur===k}">${ICONS[ic]}${dots[k]?'<span class="dot"></span>':""}${label}</button>`).join("")}</nav>`;
+}
+function topHTML(kicker, title, color = "", extra = ""){
+  return `<header class="top ${color}"><div class="wrap"><div class="grow"><div class="k">${kicker}</div><h1>${title}</h1>${extra}</div><div class="fifty">50</div></div></header>`;
+}
+async function wakeLock(){ try{ if ("wakeLock" in navigator) await navigator.wakeLock.request("screen"); }catch(e){} }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") wakeLock(); });
+
+/* ================= APRESENTADOR ================= */
+function Host(){
+  let room = ls.get("c50-room", null);
+  if (!room){ room = "cristina50-" + rid(8); ls.set("c50-room", room); }
+  const blank = () => ({ teams: [0,1].map(i => ({id: rid(5), name: TEAM_NAMES[i], c: i})), players:{}, answers:{}, marks:{}, order:{}, correct:[], lifeScored:false, bonus:{}, phase:{k:"lobby", q:0, live:0}, locked:false });
+  let S = ls.get("c50-state", null) || blank();
+  let tab = "sala", net = "a ligar", peer = null, sel = null, confirmReset = false, big = false;
+  const conns = new Map();
+  const photos = {};
+  // fotografias guardadas no IndexedDB do apresentador
+  let idb = null;
+  try{
+    const r = indexedDB.open("c50", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("photos");
+    r.onsuccess = () => { idb = r.result; const tx = idb.transaction("photos").objectStore("photos").openCursor();
+      tx.onsuccess = e => { const c = e.target.result; if (c){ photos[c.key] = c.value; c.continue(); } else render(); }; };
+  }catch(e){}
+  const putPhoto = (pid, data) => { photos[pid] = data; try{ idb && idb.transaction("photos","readwrite").objectStore("photos").put(data, pid); }catch(e){} };
+
+  const guestLink = () => location.origin + location.pathname + "?sala=" + room;
+  function save(){ ls.set("c50-state", S); }
+  function changed(){ save(); broadcast(); render(); }
+
+  function viewFor(pid){
+    const me = S.players[pid] || null;
+    const team = me && me.team;
+    const qi = S.phase.q, q = Q[qi];
+    return {
+      teams: S.teams,
+      players: Object.entries(S.players).map(([id,p]) => ({id, name:p.name, team:p.team})),
+      phase: S.phase, locked: S.locked,
+      q: S.phase.k === "quiz" ? {i:qi, total:Q.length, ...q} : null,
+      teamAnswer: team && S.answers[qi] ? S.answers[qi][team] || null : null,
+      order: team ? S.order[team] || [] : [],
+      lifeResult: S.lifeScored ? S.correct : null,
+      live: S.phase.k === "live" ? LIVE[S.phase.live] : null,
+      scores: scoresOf(S),
+      me: me ? {name: me.name, team: me.team, mission: me.mission != null ? me.mission : null, done: !!me.done, approved: !!me.approved, changes: (me.rejected||[]).length} : null,
+    };
+  }
+  function send(c, pid){ try{ if (c.open) c.send({t:"state", s: viewFor(pid)}); }catch(e){} }
+  function broadcast(){ for (const [c, pid] of conns) if (pid) send(c, pid); }
+
+  function drawMission(p){
+    const held = new Set(Object.values(S.players).filter(x => x !== p && x.mission != null).map(x => x.mission));
+    const rej = new Set(p.rejected || []);
+    let pool = MISSIONS.map((_,i) => i).filter(i => !held.has(i) && !rej.has(i) && i !== p.mission);
+    if (!pool.length) pool = MISSIONS.map((_,i) => i).filter(i => !held.has(i) && i !== p.mission);
+    if (!pool.length) return false;
+    p.mission = pool[Math.floor(Math.random() * pool.length)];
+    p.done = false; p.approved = false; delete photos[p.id];
+    return true;
+  }
+
+  function onMsg(c, d){
+    if (!d || typeof d !== "object" || typeof d.pid !== "string") return;
+    const pid = d.pid.slice(0, 40);
+    conns.set(c, pid);
+    let p = S.players[pid];
+    if (d.t === "hello"){
+      const name = String(d.name || "").trim().slice(0, 24) || "Convidado";
+      if (!p){ p = S.players[pid] = {id: pid, name, team: null, mission: null, rejected: [], done: false, approved: false}; toast(name + " entrou na festa"); }
+      else p.name = name;
+      return changed();
+    }
+    if (!p) return;
+    if (d.t === "team"){ if (S.teams.some(t => t.id === d.team)){ p.team = d.team; changed(); } return; }
+    if (d.t === "answer"){
+      if (S.locked || !p.team) return;
+      const qi = Number(d.q); if (!(qi >= 0 && qi < Q.length)) return;
+      (S.answers[qi] ||= {})[p.team] = {text: String(d.text || "").slice(0, 160), by: p.name};
+      return changed();
+    }
+    if (d.t === "order"){
+      if (!p.team || S.lifeScored) return;
+      const o = (Array.isArray(d.order) ? d.order : []).filter(x => LETTERS.includes(x));
+      S.order[p.team] = [...new Set(o)].slice(0, LIFE.length);
+      return changed();
+    }
+    if (d.t === "mission"){
+      if (d.op === "draw" && p.mission == null){ drawMission(p) ? changed() : send(c, pid); return; }
+      if (d.op === "new" && p.mission != null && !p.approved){
+        (p.rejected ||= []).push(p.mission);
+        if (!drawMission(p)) toast("Não há mais missões livres");
+        return changed();
+      }
+      if (d.op === "done" && p.mission != null){
+        p.done = true;
+        if (typeof d.photo === "string" && d.photo.startsWith("data:image/") && d.photo.length < 900000) putPhoto(pid, d.photo);
+        toast(p.name + " cumpriu a missão!");
+        return changed();
+      }
+    }
+  }
+
+  function startPeer(){
+    if (peer){ try{ peer.destroy(); }catch(e){} }
+    net = "a ligar"; render();
+    peer = new Peer(room, {debug: 0});
+    peer.on("open", () => { net = "online"; render(); });
+    peer.on("connection", c => {
+      conns.set(c, null);
+      c.on("data", d => onMsg(c, d));
+      c.on("close", () => { conns.delete(c); render(); });
+      c.on("error", () => { conns.delete(c); });
+    });
+    peer.on("disconnected", () => { net = "a ligar"; render(); setTimeout(() => { try{ peer.reconnect(); }catch(e){ startPeer(); } }, 1500); });
+    peer.on("error", e => {
+      if (e.type === "unavailable-id"){ net = "a ligar"; render(); setTimeout(startPeer, 4000); return; }
+      if (["network","server-error","socket-error","socket-closed"].includes(e.type)){ net = "offline"; render(); setTimeout(startPeer, 4000); }
+    });
+  }
+
+  /* ----- render ----- */
+  function teamsBox(){
+    const unassigned = Object.values(S.players).filter(p => !p.team || !S.teams.some(t => t.id === p.team));
+    return `<div class="card stack">
+      <div class="howto">${HOWTO_SVG}<p>Os convidados tocam num quadrado para entrar na equipa. Tu também podes mudar alguém: toca no nome e depois no quadrado.</p></div>
+      <div class="teams">${S.teams.map(t => { const m = Object.values(S.players).filter(p => p.team === t.id);
+        return `<button class="team c${t.c} ${sel?"target":""}" data-act="dropTeam" data-id="${t.id}"><h3>${esc(t.name)}</h3><span class="n">${m.length} ${m.length===1?"jogador":"jogadores"}</span>
+        <div class="chips">${m.map(p => `<span class="pchip ${sel===p.id?"sel":""}" data-act="pick" data-id="${p.id}">${esc(p.name)}</span>`).join("")}</div></button>`; }).join("")}</div>
+      <div><div class="label" style="margin-bottom:6px">Sem equipa</div><div class="pool">${unassigned.length ? unassigned.map(p => `<button class="pchip ${sel===p.id?"sel":""}" data-act="pick" data-id="${p.id}">${esc(p.name)}</button>`).join("") : '<span class="muted">Ninguém à espera.</span>'}</div></div>
+      <div class="row">
+        <button class="btn sm ghost" data-act="addTeam" ${S.teams.length>=6?"disabled":""}>+ Equipa</button>
+        <button class="btn sm ghost" data-act="shuffle">Baralhar equipas</button>
+      </div>
+      <div class="stack" style="gap:8px">${S.teams.map(t => `<div class="row"><span class="sw c${t.c}" style="width:16px;height:16px;border-radius:5px"></span><input class="field grow" style="padding:10px 12px;font-size:15px" id="tn-${t.id}" data-act="rename" data-id="${t.id}" value="${esc(t.name)}" maxlength="22" aria-label="Nome da equipa"><button class="btn sm ghost" data-act="delTeam" data-id="${t.id}" ${S.teams.length<=2?"disabled":""}>Apagar</button></div>`).join("")}</div>
+    </div>`;
+  }
+
+  function quizPanel(){
+    const qi = S.phase.q, q = Q[qi], ans = S.answers[qi] || {}, mk = S.marks[qi] || {}, pts = q.p || 1;
+    return `<div class="qcard"><div class="num">${qi+1}</div><div class="label">${esc(q.s)}${q.v?" · vídeo":""}</div><h2>${esc(q.t)}</h2><span class="pts ${pts>1?"hard":""}">${pts} ${pts===1?"nota":"notas"}</span></div>
+      <div class="progress"><i style="width:${(qi+1)/Q.length*100}%"></i></div>
+      <div class="row"><button class="btn sm ghost" data-act="prevQ" ${qi===0?"disabled":""}>‹ Anterior</button><span class="grow muted" style="text-align:center">${qi+1} de ${Q.length}</span><button class="btn sm" data-act="nextQ" ${qi===Q.length-1?"disabled":""}>Seguinte ›</button></div>
+      <button class="btn full ${S.locked?"coral":"ghost"}" data-act="lock">${S.locked?"Respostas fechadas · reabrir":"Fechar respostas"}</button>
+      <div class="label">Respostas das equipas · toca ✓ nas certas</div>
+      <div class="stack" style="gap:8px">${S.teams.map(t => { const a = ans[t.id]; const on = (mk[t.id]||0) > 0;
+        return `<div class="ans"><span class="sw c${t.c}"></span><div class="tx"><b>${esc(t.name)}${a?" · "+esc(a.by):""}</b><span>${a?esc(a.text):'<i class="muted" style="font-weight:400">sem resposta</i>'}</span></div><button class="mark ${on?"on":""}" data-act="mark" data-id="${t.id}" aria-pressed="${on}">${on?"+"+pts:"✓"}</button></div>`; }).join("")}</div>`;
+  }
+
+  function lifePanel(){
+    const done = S.correct.length === LIFE.length;
+    const correctUI = `<div class="card stack"><div class="label">1 · A ordem certa (só tu vês)</div>
+      <p>Toca nos momentos pela ordem em que aconteceram.</p>
+      <div class="life">${LIFE.map((t,i) => { const L = LETTERS[i], pos = S.correct.indexOf(L);
+        return `<button class="ev ${pos>=0?"on":""}" data-act="setCorrect" data-l="${L}"><span class="pos">${pos>=0?pos+1:L}</span><span>${esc(t)}</span></button>`; }).join("")}</div>
+      <button class="btn sm ghost" data-act="clearCorrect">Recomeçar a ordem</button></div>`;
+    const teamsUI = `<div class="card stack"><div class="label">2 · Ordens das equipas</div>${S.teams.map(t => { const o = S.order[t.id] || []; let n = 0; o.forEach((x,i) => { if (S.correct[i] === x) n++; });
+      return `<div class="ans"><span class="sw c${t.c}"></span><div class="tx"><b>${esc(t.name)} · ${o.length}/${LIFE.length}</b><span>${o.length?esc(o.join(" ")):"—"}</span></div>${done?`<b class="t${t.c}" style="font-family:var(--display);font-size:22px">${n}</b>`:""}</div>`; }).join("")}
+      <button class="btn full ${S.lifeScored?"teal":""}" data-act="scoreLife" ${done?"":"disabled"}>${S.lifeScored?"Pontos dados · mostrar a todos ✓":"Corrigir e dar pontos"}</button>
+      ${done?"":'<p class="muted" style="font-size:14px">Marca primeiro a ordem certa em cima.</p>'}</div>`;
+    return correctUI + teamsUI;
+  }
+
+  function livePanel(){
+    const g = LIVE[S.phase.live];
+    return `<div class="card stack"><div class="label">Jogo ao vivo</div>
+      <div class="phase">${LIVE.map((x,i) => `<button class="${i===S.phase.live?"on":""}" data-act="pickLive" data-i="${i}">${esc(x.t)}</button>`).join("")}</div></div>
+      <div class="qcard"><div class="label">Agora no ecrã de todos</div><h2>${esc(g.t)}</h2><p class="muted" style="margin-top:8px">${esc(g.d)}</p></div>
+      <div class="card stack"><div class="label">Dar notas</div>${bonusRows()}</div>`;
+  }
+  function bonusRows(){
+    return S.teams.map(t => `<div class="row"><span class="sw c${t.c}" style="width:16px;height:16px;border-radius:5px"></span><b class="grow">${esc(t.name)}</b>
+      <div class="stepper"><button data-act="bonus" data-id="${t.id}" data-v="-1" aria-label="Menos uma nota">−</button><b style="min-width:30px;text-align:center;font-variant-numeric:tabular-nums">${S.bonus[t.id]||0}</b><button data-act="bonus" data-id="${t.id}" data-v="1" aria-label="Mais uma nota">+</button><button data-act="bonus" data-id="${t.id}" data-v="3" style="width:auto;padding:0 10px">+3</button></div></div>`).join("");
+  }
+
+  function render(){
+    if (big){
+      $app.innerHTML = `<div class="bigscreen"><div class="wrap stack" style="max-width:900px"><div class="label" style="color:var(--gold2)">Cristina 50 · Classificação</div><h1>Quem conhece melhor a <em style="color:var(--gold2)">Cristina</em>?</h1>${scoreHTML(S.teams, scoresOf(S))}<button class="btn gold" data-act="big">Fechar</button></div></div>`;
+      return;
+    }
+    const online = conns.size ? [...conns.values()].filter(Boolean).length : 0;
+    const status = `<span class="status ${net==="online"?"on":net==="offline"?"off":""}"><i></i>${net==="online"?"Sala aberta · "+online+" ligados":net==="offline"?"Sem rede · a tentar":"A abrir a sala…"}</span>`;
+    let body = "";
+    if (tab === "sala"){
+      body = `<div class="card stack"><h2>Convida para a festa</h2><p>Envia este link a cada convidado, ou mostra o código para lerem com a câmara.</p>
+        <div class="qr" id="qr"></div><div class="linkbox" id="lk">${esc(guestLink())}</div>
+        <button class="btn full" data-act="copy">Copiar link</button></div>
+        <div class="card stack"><h2>Mantém este ecrã aberto</h2><p>Este telemóvel é a central do jogo. Se o fechares, os convidados ficam à espera até voltares a abrir. O que já foi respondido fica guardado.</p></div>
+        <div class="card stack"><div class="label">Recomeçar o jogo</div>${confirmReset
+          ? `<div class="confirm stack"><b>Apagar equipas, respostas e pontos?</b><div class="row"><button class="btn sm coral" data-act="reset">Sim, apagar tudo</button><button class="btn sm ghost" data-act="noReset">Cancelar</button></div></div>`
+          : `<button class="btn sm ghost" data-act="askReset">Apagar tudo e começar de novo</button>`}</div>`;
+    }
+    if (tab === "equipas") body = teamsBox();
+    if (tab === "jogo"){
+      const k = S.phase.k;
+      body = `<div class="card stack"><div class="label">O que aparece nos telemóveis</div><div class="phase">
+        ${[["lobby","Equipas"],["quiz","Perguntas"],["life","Linha do tempo"],["live","Cantar"],["end","Final"]].map(([v,l]) => `<button class="${k===v?"on":""}" data-act="phase" data-k="${v}">${l}</button>`).join("")}</div></div>`
+        + (k === "quiz" ? `<div class="stack">${quizPanel()}</div>` : k === "life" ? lifePanel() : k === "live" ? livePanel()
+          : k === "end" ? `<div class="card stack"><h2>Grand Finale</h2><p>Todos veem a classificação final.</p><button class="btn full gold" data-act="big">Mostrar em ecrã grande</button></div>`
+          : `<div class="card"><h2>Hora de formar equipas</h2><p>Os convidados escolhem a equipa no telemóvel. Quando estiverem todos, carrega em Perguntas.</p></div>`);
+    }
+    if (tab === "missoes"){
+      const ps = Object.values(S.players);
+      body = `<div class="card"><h2>Missões secretas</h2><p>Só tu vês isto. Aprova as missões cumpridas para dar 3 notas à equipa.</p></div>
+        <div class="mlist">${ps.length ? ps.map(p => { const t = S.teams.find(x => x.id === p.team);
+          return `<div class="mitem"><div class="row"><b class="grow">${esc(p.name)} ${t?`<span class="t${t.c}">· ${esc(t.name)}</span>`:""}</b>${p.approved?'<span class="tag ok">Aprovada</span>':p.done?'<span class="tag wait">Por aprovar</span>':'<span class="tag go">Em curso</span>'}</div>
+          <div class="muted">${p.mission!=null?esc(MISSIONS[p.mission]):"Ainda não tirou carta"}${p.rejected&&p.rejected.length?` · trocou ${p.rejected.length}×`:""}</div>
+          ${photos[p.id]?`<img class="photo" src="${photos[p.id]}" alt="Prova da missão de ${esc(p.name)}">`:""}
+          ${p.done?`<div class="row"><button class="btn sm ${p.approved?"ghost":"teal"}" data-act="approve" data-id="${p.id}">${p.approved?"Retirar aprovação":"Aprovar · +3"}</button></div>`:""}</div>`; }).join("") : '<p class="muted">Ainda ninguém entrou.</p>'}</div>`;
+    }
+    if (tab === "pontos"){
+      body = `<div class="card stack"><h2>Classificação</h2>${scoreHTML(S.teams, scoresOf(S))}<button class="btn full gold" data-act="big">Ecrã grande</button></div>
+        <div class="card stack"><div class="label">Notas extra (jogos ao vivo, Versão Espelho…)</div>${bonusRows()}</div>`;
+    }
+    const pend = Object.values(S.players).some(p => p.done && !p.approved);
+    $app.innerHTML = topHTML("Apresentador", "Cristina <em>50</em>", "", status) + `<main class="wrap stack">${body}</main>` +
+      tabsHTML([["sala","Convidar","link"],["equipas","Equipas","team"],["jogo","Jogo","game"],["missoes","Missões","card"],["pontos","Pontos","trophy"]], tab, {missoes: pend});
+    if (tab === "sala" && window.QRCode){ new QRCode(document.getElementById("qr"), {text: guestLink(), width: 200, height: 200, colorDark: "#4A1F3D", colorLight: "#ffffff"}); }
+  }
+
+  $app.addEventListener("click", e => {
+    wakeLock();
+    const tb = e.target.closest("[data-tab]"); if (tb){ tab = tb.dataset.tab; sel = null; confirmReset = false; render(); window.scrollTo(0,0); return; }
+    const el = e.target.closest("[data-act]"); if (!el) return;
+    const a = el.dataset.act, id = el.dataset.id;
+    if (a === "pick"){ e.stopPropagation(); sel = sel === id ? null : id; return render(); }
+    if (a === "dropTeam"){ if (sel && S.players[sel]){ S.players[sel].team = id; sel = null; changed(); } return; }
+    if (a === "addTeam" && S.teams.length < 6){ const used = new Set(S.teams.map(t => t.c)); const c = [0,1,2,3,4,5].find(x => !used.has(x)); S.teams.push({id: rid(5), name: TEAM_NAMES[c], c}); return changed(); }
+    if (a === "delTeam" && S.teams.length > 2){ S.teams = S.teams.filter(t => t.id !== id); Object.values(S.players).forEach(p => { if (p.team === id) p.team = null; }); return changed(); }
+    if (a === "shuffle"){ const ps = Object.values(S.players).sort(() => Math.random() - .5); ps.forEach((p,i) => p.team = S.teams[i % S.teams.length].id); return changed(); }
+    if (a === "phase"){ S.phase.k = el.dataset.k; if (S.phase.k === "end") big = false; return changed(); }
+    if (a === "prevQ"){ S.phase.q = Math.max(0, S.phase.q - 1); S.locked = false; return changed(); }
+    if (a === "nextQ"){ S.phase.q = Math.min(Q.length - 1, S.phase.q + 1); S.locked = false; return changed(); }
+    if (a === "lock"){ S.locked = !S.locked; return changed(); }
+    if (a === "mark"){ const qi = S.phase.q, pts = Q[qi].p || 1; const m = (S.marks[qi] ||= {}); m[id] = m[id] ? 0 : pts; return changed(); }
+    if (a === "setCorrect"){ if (S.lifeScored) return toast("Já corrigiste. Reabre para mudar."); const L = el.dataset.l, i = S.correct.indexOf(L); if (i >= 0) S.correct.splice(i, 1); else S.correct.push(L); return changed(); }
+    if (a === "clearCorrect"){ S.correct = []; S.lifeScored = false; return changed(); }
+    if (a === "scoreLife"){ S.lifeScored = !S.lifeScored; return changed(); }
+    if (a === "pickLive"){ S.phase.live = Number(el.dataset.i); return changed(); }
+    if (a === "bonus"){ S.bonus[id] = (S.bonus[id] || 0) + Number(el.dataset.v); return changed(); }
+    if (a === "approve"){ const p = S.players[id]; if (p){ p.approved = !p.approved; changed(); } return; }
+    if (a === "big"){ big = !big; return render(); }
+    if (a === "copy"){ const l = guestLink(); (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(() => toast("Link copiado"), () => { const r = document.createRange(); r.selectNodeContents(document.getElementById("lk")); getSelection().removeAllRanges(); getSelection().addRange(r); toast("Seleciona e copia o link"); }); return; }
+    if (a === "askReset"){ confirmReset = true; return render(); }
+    if (a === "noReset"){ confirmReset = false; return render(); }
+    if (a === "reset"){ S = blank(); confirmReset = false; for (const k in photos) delete photos[k]; try{ idb && idb.transaction("photos","readwrite").objectStore("photos").clear(); }catch(e){} toast("Jogo recomeçado"); return changed(); }
+  });
+  $app.addEventListener("change", e => {
+    const el = e.target; if (el.dataset.act === "rename"){ const t = S.teams.find(x => x.id === el.dataset.id); if (t){ t.name = el.value.trim().slice(0, 22) || t.name; changed(); } }
+  });
+
+  render(); startPeer();
+}
+
+/* ================= CONVIDADO ================= */
+function Guest(room){
+  let pid = ls.get("c50-pid", null); if (!pid){ pid = rid(12); ls.set("c50-pid", pid); }
+  let name = ls.get("c50-name", "");
+  let V = null, tab = "jogo", net = "a ligar", peer = null, conn = null, retryT = null, flip = false, sending = false;
+  let draft = ls.get("c50-draft", {});
+
+  function send(m){ if (conn && conn.open){ try{ conn.send({...m, pid}); return true; }catch(e){} } toast("Sem ligação. A tentar de novo…"); return false; }
+  function connect(){
+    clearTimeout(retryT);
+    if (peer){ try{ peer.destroy(); }catch(e){} }
+    net = "a ligar"; render();
+    peer = new Peer({debug: 0});
+    peer.on("open", () => {
+      conn = peer.connect(room, {reliable: true});
+      conn.on("open", () => { net = "online"; if (name) conn.send({t: "hello", pid, name}); render(); });
+      conn.on("data", d => { if (d && d.t === "state"){ if (!d.s.me && name) conn.send({t: "hello", pid, name}); const prevPhase = V && V.phase && V.phase.k + V.phase.q; V = d.s; if (V.phase && prevPhase !== V.phase.k + V.phase.q && tab !== "missao") tab = V.me && V.me.team ? "jogo" : tab; render(); } });
+      conn.on("close", retry); conn.on("error", retry);
+      setTimeout(() => { if (net !== "online") retry(); }, 9000);
+    });
+    peer.on("error", retry);
+    peer.on("disconnected", retry);
+  }
+  function retry(){ if (net === "retry") return; net = "retry"; render(); clearTimeout(retryT); retryT = setTimeout(connect, 3000); }
+
+  function welcome(){
+    $app.innerHTML = `<section class="hero"><div class="staff"></div><div class="wrap">
+      <div class="big">50</div><div class="name">Cristina</div>
+      <h2>Quem conhece melhor a Cristina?</h2>
+      <form id="join"><label class="label" for="nm" style="color:var(--gold2)">O teu nome</label>
+      <input class="field" id="nm" maxlength="24" autocomplete="given-name" placeholder="Ex.: Tia Ana" value="${esc(name)}" required>
+      <button class="btn gold full" type="submit">Entrar na festa</button></form></div></section>`;
+    document.getElementById("join").addEventListener("submit", e => {
+      e.preventDefault(); const v = document.getElementById("nm").value.trim(); if (!v) return;
+      name = v.slice(0, 24); ls.set("c50-name", name); if (conn && conn.open) conn.send({t: "hello", pid, name}); render();
+    });
+  }
+
+  function teamsView(){
+    const me = V.me, ps = V.players;
+    return `<div class="howto">${HOWTO_SVG}<p>${me && me.team ? "Estás numa equipa. Podes mudar até o jogo começar: toca noutro quadrado." : "Toca num quadrado para entrares nessa equipa."}</p></div>
+      <div class="teams">${V.teams.map(t => { const m = ps.filter(p => p.team === t.id); const mine = me && me.team === t.id;
+        return `<button class="team c${t.c} ${mine?"mine":""}" data-act="team" data-id="${t.id}" aria-pressed="${mine}">${mine?'<span class="tick">✓</span>':""}<h3>${esc(t.name)}</h3><span class="n">${m.length} ${m.length===1?"jogador":"jogadores"}</span>
+        <div class="chips">${m.map(p => `<span class="chip ${p.id===pid?"me":""}">${esc(p.name)}</span>`).join("")}</div></button>`; }).join("")}</div>
+      ${ps.filter(p => !p.team).length ? `<div><div class="label" style="margin-bottom:6px">Ainda a escolher</div><div class="pool">${ps.filter(p => !p.team).map(p => `<span class="chip">${esc(p.name)}</span>`).join("")}</div></div>` : ""}`;
+  }
+
+  function gameView(){
+    const ph = V.phase.k;
+    if (!V.me.team) return teamsView();
+    if (ph === "lobby") return `<div class="card wait"><svg width="70" height="60" viewBox="0 0 70 60" aria-hidden="true"><g fill="#C2913F"><ellipse cx="14" cy="46" rx="10" ry="7" transform="rotate(-20 14 46)"/><ellipse cx="52" cy="40" rx="10" ry="7" transform="rotate(-20 52 40)"/><rect x="22" y="8" width="3" height="38"/><rect x="60" y="2" width="3" height="38"/><path d="M22 8 L63 2 L63 10 L22 16 Z"/></g></svg>
+      <h2>Estás na equipa ${esc(teamName(V.me.team))}</h2><p>O jogo vai começar. Entretanto, tira a tua missão secreta.</p><button class="btn coral" data-tab="missao" style="margin-top:14px">Ver missão secreta</button></div>`;
+    if (ph === "quiz" && V.q){
+      const q = V.q, ta = V.teamAnswer, pts = q.p || 1;
+      const val = draft[q.i] != null ? draft[q.i] : (ta ? ta.text : "");
+      return `<div class="qcard"><div class="num">${q.i+1}</div><div class="label">${esc(q.s)}</div><h2>${esc(q.t)}</h2><span class="pts ${pts>1?"hard":""}">${pts} ${pts===1?"nota":"notas"}</span>
+        ${q.v?'<p class="muted" style="margin-top:10px;position:relative">Adivinhem o que ela respondeu no vídeo.</p>':""}</div>
+        ${V.locked ? `<div class="teamans"><div class="label">Respostas fechadas</div><b>${ta?esc(ta.text):"A vossa equipa não respondeu."}</b></div>` : `
+        <form id="ansf" class="stack" style="gap:10px">
+          ${q.o ? `<div class="opts">${q.o.map(o => `<button type="button" class="opt" data-act="opt" data-v="${esc(o)}">${esc(o)}</button>`).join("")}</div>` : ""}
+          <input class="field" id="ans-${q.i}" ${q.n?'inputmode="numeric"':""} maxlength="160" placeholder="${q.n?"O vosso palpite":"A resposta da equipa"}" value="${esc(val)}" autocomplete="off">
+          <button class="btn full" type="submit">${ta?"Mudar resposta da equipa":"Enviar resposta da equipa"}</button></form>
+        ${ta ? `<div class="teamans"><div class="label">Resposta da equipa</div><b>${esc(ta.text)}</b> <span class="muted">· ${esc(ta.by)}</span></div>` : '<p class="muted" style="text-align:center;font-size:14px">Basta uma pessoa da equipa responder. Combinem antes de enviar.</p>'}`}`;
+    }
+    if (ph === "life"){
+      const o = V.order || [], res = V.lifeResult;
+      return `<div class="card"><div class="label">Uma vida em partitura</div><h2 style="margin-top:4px">Ponham a vida da Cristina por ordem</h2><p style="margin-top:6px">${res?"Aqui está a correção. Verde está certo.":"Toquem nos momentos do mais antigo para o mais recente. Toda a equipa vê a mesma ordem."}</p></div>
+        <div class="life">${(res ? o.concat(LETTERS.filter(L => !o.includes(L))) : LETTERS).map(L => { const i = LETTERS.indexOf(L), pos = o.indexOf(L);
+          const cls = res ? (res[pos] === L && pos >= 0 ? "on good" : "bad") : pos >= 0 ? "on" : "";
+          return `<button class="ev ${cls}" data-act="life" data-l="${L}" ${res?"disabled":""}><span class="pos">${pos>=0?pos+1:"·"}</span><span>${esc(LIFE[i])}</span></button>`; }).join("")}</div>
+        ${res?"":`<div class="row"><span class="grow muted">${o.length} de ${LIFE.length}</span><button class="btn sm ghost" data-act="lifeClear">Recomeçar</button></div>`}`;
+    }
+    if (ph === "live" && V.live) return `<div class="qcard" style="background:var(--gold);border:0;color:var(--plum)"><div class="label" style="color:var(--plum)">Toda a gente canta</div><h2>${esc(V.live.t)}</h2><p style="margin-top:10px;font-size:17px">${esc(V.live.d)}</p></div><p class="muted" style="text-align:center">Olhem para o apresentador.</p>`;
+    if (ph === "end") return `<div class="qcard" style="background:var(--plum);border:0;color:#fff"><div class="label">Grand Finale</div><h2 style="color:#fff">Obrigado por jogarem!</h2><p style="margin-top:8px;opacity:.9">E agora, bolo.</p></div>${scoreHTML(V.teams, V.scores)}`;
+    return `<div class="card wait"><p>À espera do apresentador…</p></div>`;
+  }
+
+  function missionView(){
+    const me = V.me;
+    if (me.mission == null) return `<button class="mission back ${flip?"flip":""}" data-act="draw" style="width:100%"><div class="q">?</div><h2 style="font-size:22px">Toca para tirar a tua carta</h2><div class="f">Não a mostres a ninguém</div></button>`;
+    const cols = ["c0","c1","c2","c3","c4"]; const c = cols[me.mission % 5];
+    return `<div class="mission ${c} ${flip?"flip":""}" ${c==="c3"?'style="color:var(--plum)"':""}><div class="k">Missão secreta</div><h2>${esc(MISSIONS[me.mission])}</h2><div class="f">Não mostres esta carta a ninguém. Se alguém adivinhar antes, perdes.</div></div>
+      ${me.approved ? `<div class="done">Missão aprovada! +3 notas para a tua equipa.</div>` : me.done ? `<div class="done">Enviado! O apresentador vai aprovar.</div>` : `
+      <label class="btn full teal" for="ph">${sending?"A enviar…":"Cumpri! Enviar foto"}</label>
+      <input type="file" id="ph" accept="image/*" hidden>
+      <button class="btn full ghost" data-act="newMission">Não gosto · tirar outra</button>
+      <p class="muted" style="font-size:13px;text-align:center">A nova carta nunca é igual à de outra pessoa.</p>`}`;
+  }
+
+  function teamName(id){ const t = V && V.teams.find(x => x.id === id); return t ? t.name : ""; }
+
+  function render(){
+    if (!name) return welcome();
+    if (!V){
+      $app.innerHTML = topHTML("Cristina 50", "Olá, <em>" + esc(name) + "</em>") + `<main class="wrap"><div class="card wait"><h2>${net==="retry"?"À procura da festa…":"A ligar à festa…"}</h2><p style="margin-top:6px">Confirma que tens internet. O apresentador tem de ter o jogo aberto.</p></div></main>`;
+      return;
+    }
+    const k = V.phase.k, team = V.teams.find(t => t.id === (V.me && V.me.team));
+    const colors = {quiz:"", life:"teal", live:"gold", end:"", lobby:"coral"};
+    const titles = {jogo: k==="quiz"?"Pergunta <em>"+(V.q?V.q.i+1:"")+"</em>":k==="life"?"Uma vida <em>em partitura</em>":k==="live"?"Toda a gente <em>canta</em>":k==="end"?"Grand <em>Finale</em>":"Quem conhece <em>a Cristina?</em>", missao:"Missão <em>secreta</em>", equipas:"Escolhe a <em>equipa</em>", pontos:"Classifi<em>cação</em>"};
+    const status = `<span class="status ${net==="online"?"on":"off"}"><i></i>${team?esc(team.name)+" · ":""}${net==="online"?"ligado":"a religar…"}</span>`;
+    let body = tab === "jogo" ? gameView() : tab === "missao" ? missionView() : tab === "equipas" ? teamsView() : `<div class="card stack"><h2>Classificação</h2>${scoreHTML(V.teams, V.scores)}</div>`;
+    if (!V.me || !V.me.team) tab = tab === "missao" ? "missao" : "equipas", body = tab === "missao" ? missionView() : teamsView();
+    $app.innerHTML = topHTML(esc(name), titles[tab] || titles.jogo, tab === "jogo" ? colors[k] : tab === "missao" ? "coral" : "", status) + `<main class="wrap stack">${body}</main>` +
+      tabsHTML([["jogo","Jogo","game"],["missao","Missão","card"],["equipas","Equipas","team"],["pontos","Pontos","trophy"]], tab, {missao: V.me && V.me.mission == null});
+    flip = false;
+    const f = document.getElementById("ansf");
+    if (f) f.addEventListener("submit", e => { e.preventDefault(); const q = V.q; const v = document.getElementById("ans-" + q.i).value.trim(); if (!v) return; if (send({t: "answer", q: q.i, text: v})){ delete draft[q.i]; ls.set("c50-draft", draft); toast("Resposta enviada"); } });
+    const inp = V.q && document.getElementById("ans-" + V.q.i);
+    if (inp) inp.addEventListener("input", () => { draft[V.q.i] = inp.value; ls.set("c50-draft", draft); });
+    const ph = document.getElementById("ph");
+    if (ph) ph.addEventListener("change", () => { const file = ph.files && ph.files[0]; if (!file) return; sending = true; render(); shrink(file).then(data => { sending = false; send({t: "mission", op: "done", photo: data}); }, () => { sending = false; send({t: "mission", op: "done"}); }); });
+  }
+
+  // reduz a foto para caber na ligação
+  function shrink(file){
+    return new Promise((res, rej) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => { const m = 900, s = Math.min(1, m / Math.max(img.width, img.height)); const c = document.createElement("canvas"); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", .7)); };
+      img.onerror = rej; img.src = url;
+    });
+  }
+
+  $app.addEventListener("click", e => {
+    const tb = e.target.closest("[data-tab]"); if (tb){ tab = tb.dataset.tab; render(); window.scrollTo(0,0); return; }
+    const el = e.target.closest("[data-act]"); if (!el || !V) return;
+    const a = el.dataset.act;
+    if (a === "team"){ send({t: "team", team: el.dataset.id}); }
+    if (a === "opt"){ const i = document.getElementById("ans-" + V.q.i); if (i){ i.value = el.dataset.v; draft[V.q.i] = i.value; ls.set("c50-draft", draft); } }
+    if (a === "life"){ const L = el.dataset.l, o = [...(V.order || [])], i = o.indexOf(L); if (i >= 0) o.splice(i, 1); else o.push(L); V.order = o; render(); send({t: "order", order: o}); }
+    if (a === "lifeClear"){ V.order = []; render(); send({t: "order", order: []}); }
+    if (a === "draw"){ flip = true; send({t: "mission", op: "draw"}); }
+    if (a === "newMission"){ flip = true; send({t: "mission", op: "new"}); }
+  });
+
+  render(); connect();
+}
+
+/* ================= ARRANQUE ================= */
+if (!window.Peer){
+  $app.innerHTML = `<main class="wrap"><div class="card" style="margin-top:30px"><h2>Não foi possível carregar o jogo</h2><p>Verifica a ligação à internet e recarrega a página.</p></div></main>`;
+} else if (IS_HOST) Host();
+else if (ROOM_PARAM) Guest(ROOM_PARAM);
+else {
+  $app.innerHTML = `<section class="hero"><div class="staff"></div><div class="wrap"><div class="big">50</div><div class="name">Cristina</div>
+    <h2>Para jogar, abre o link que recebeste.</h2>
+    <p style="margin-top:10px;opacity:.85;max-width:420px">É o apresentador que envia o link da festa a cada convidado.</p>
+    <a class="btn gold" href="?apresentador" style="margin-top:22px;text-decoration:none">Sou o apresentador</a></div></section>`;
+}
+</script>
+</body>
+</html>

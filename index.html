@@ -223,7 +223,7 @@ main{padding-block:18px 24px}
 <div id="app"></div>
 <div id="toast" class="toast" hidden></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.3.5/mqtt.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 "use strict";
@@ -370,6 +370,12 @@ function toast(msg){ const t = document.getElementById("toast"); t.textContent =
 const params = new URLSearchParams(location.search);
 const IS_HOST = params.has("apresentador");
 const ROOM_PARAM = params.get("sala");
+/* ligação: servidor público na porta 443, funciona em WiFi e dados móveis */
+const ROOM = ROOM_PARAM && /^[a-z0-9-]{3,40}$/.test(ROOM_PARAM) ? ROOM_PARAM : "c50-cristina-meioseculo-q7x4";
+const BROKER = "wss://public.cloud.shiftr.io";
+const TOPIC = "c50/" + ROOM;
+const MQ = {username: "public", password: "public", reconnectPeriod: 2000, connectTimeout: 10000, keepalive: 20};
+const GUEST_URL = location.origin + location.pathname + (ROOM_PARAM && ROOM === ROOM_PARAM ? "?sala=" + ROOM : "");
 const ICONS = {
   game:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
   team:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>',
@@ -522,26 +528,23 @@ async function runReveal(teams, sc){
 
 /* ================= APRESENTADOR ================= */
 function Host(){
-  let room = ls.get("c50-room", null);
-  if (!room){ room = "cristina50-" + rid(8); ls.set("c50-room", room); }
   const blank = () => ({ teams: [0,1].map(i => ({id: rid(5), name: TEAM_NAMES[i], c: i})), players:{}, answers:{}, marks:{}, order:{}, correct:[], lifeScored:false, bonus:{}, phase:{k:"lobby", q:0, live:0, mq:0}, locked:false });
-  let S = ls.get("c50-state", null) || blank();
-  let tab = "sala", net = "a ligar", peer = null, sel = null, confirmReset = false, big = false;
-  const conns = new Map();
+  const KEY = "c50-state2-" + ROOM; let S = ls.get(KEY, null) || blank(); let fresh = !ls.get(KEY, null);
+  let tab = "sala", net = "a ligar", client = null, sel = null, confirmReset = false, big = false, confirmDel = null, bT = null;
   const photos = {};
   // fotografias guardadas no IndexedDB do apresentador
   let idb = null;
   try{
-    const r = indexedDB.open("c50", 1);
+    const r = indexedDB.open("c50b", 1);
     r.onupgradeneeded = () => r.result.createObjectStore("photos");
     r.onsuccess = () => { idb = r.result; const tx = idb.transaction("photos").objectStore("photos").openCursor();
       tx.onsuccess = e => { const c = e.target.result; if (c){ photos[c.key] = c.value; c.continue(); } else render(); }; };
   }catch(e){}
   const putPhoto = (pid, data) => { photos[pid] = data; try{ idb && idb.transaction("photos","readwrite").objectStore("photos").put(data, pid); }catch(e){} };
 
-  const guestLink = () => location.origin + location.pathname + "?sala=" + room;
-  function save(){ ls.set("c50-state", S); }
-  function changed(){ save(); broadcast(); render(); }
+  const guestLink = () => GUEST_URL;
+  function save(){ ls.set(KEY, S); }
+  function changed(){ save(); clearTimeout(bT); bT = setTimeout(broadcast, 120); render(); }
 
   function viewFor(pid){
     const me = S.players[pid] || null;
@@ -560,8 +563,11 @@ function Host(){
       me: me ? {name: me.name, team: me.team, mission: me.mission != null ? me.mission : null, done: !!me.done, approved: !!me.approved, changes: (me.rejected||[]).length} : null,
     };
   }
-  function send(c, pid){ try{ if (c.open) c.send({t:"state", s: viewFor(pid)}); }catch(e){} }
-  function broadcast(){ for (const [c, pid] of conns) if (pid) send(c, pid); }
+  function pub(topic, obj, retain = true){ try{ if (client && client.connected) client.publish(topic, obj == null ? "" : JSON.stringify(obj), {qos: 1, retain}); }catch(e){} }
+  function send(pid){ pub(TOPIC + "/p/" + pid, {t: "state", s: viewFor(pid)}); }
+  function broadcast(){ for (const pid in S.players) send(pid); if (!fresh) pub(TOPIC + "/host", {t: "backup", at: Date.now(), S}); }
+  // diz a um telemóvel que já não está no jogo (volta a entrar sozinho se ainda estiver aberto)
+  function kick(pid){ pub(TOPIC + "/p/" + pid, {t: "state", s: {...viewFor(pid), me: null}}); }
 
   function drawMission(p){
     const held = new Set(Object.values(S.players).filter(x => x !== p && x.mission != null).map(x => x.mission));
@@ -574,10 +580,9 @@ function Host(){
     return true;
   }
 
-  function onMsg(c, d){
+  function onMsg(d){
     if (!d || typeof d !== "object" || typeof d.pid !== "string") return;
     const pid = d.pid.slice(0, 40);
-    conns.set(c, pid);
     let p = S.players[pid];
     if (d.t === "hello"){
       const name = String(d.name || "").trim().slice(0, 24) || "Convidado";
@@ -600,7 +605,7 @@ function Host(){
       return changed();
     }
     if (d.t === "mission"){
-      if (d.op === "draw" && p.mission == null){ drawMission(p) ? changed() : send(c, pid); return; }
+      if (d.op === "draw" && p.mission == null){ drawMission(p) ? changed() : send(pid); return; }
       if (d.op === "new" && p.mission != null && !p.approved){
         (p.rejected ||= []).push(p.mission);
         if (!drawMission(p)) toast("Não há mais missões livres");
@@ -608,29 +613,34 @@ function Host(){
       }
       if (d.op === "done" && p.mission != null){
         p.done = true;
-        if (typeof d.photo === "string" && d.photo.startsWith("data:image/") && d.photo.length < 900000) putPhoto(pid, d.photo);
+        if (typeof d.photo === "string" && d.photo.startsWith("data:image/") && d.photo.length < 70000) putPhoto(pid, d.photo);
         toast(p.name + " cumpriu a missão!");
         return changed();
       }
     }
   }
 
-  function startPeer(){
-    if (peer){ try{ peer.destroy(); }catch(e){} }
+  function startNet(){
     net = "a ligar"; render();
-    peer = new Peer(room, {debug: 0});
-    peer.on("open", () => { net = "online"; render(); });
-    peer.on("connection", c => {
-      conns.set(c, null);
-      c.on("data", d => onMsg(c, d));
-      c.on("close", () => { conns.delete(c); render(); });
-      c.on("error", () => { conns.delete(c); });
+    client = mqtt.connect(BROKER, {...MQ, clientId: "c50h-" + rid(8), clean: true});
+    client.on("connect", () => {
+      net = "online";
+      client.subscribe([TOPIC + "/in", TOPIC + "/host"], {qos: 1});
+      if (fresh) setTimeout(() => { fresh = false; broadcast(); }, 3500); else broadcast();
+      render();
     });
-    peer.on("disconnected", () => { net = "a ligar"; render(); setTimeout(() => { try{ peer.reconnect(); }catch(e){ startPeer(); } }, 1500); });
-    peer.on("error", e => {
-      if (e.type === "unavailable-id"){ net = "a ligar"; render(); setTimeout(startPeer, 4000); return; }
-      if (["network","server-error","socket-error","socket-closed"].includes(e.type)){ net = "offline"; render(); setTimeout(startPeer, 4000); }
+    client.on("message", (topic, msg) => {
+      let d; try{ d = JSON.parse(msg.toString()); }catch(e){ return; }
+      if (topic === TOPIC + "/host"){
+        // recupera o jogo guardado no servidor se este telemóvel começou sem nada
+        if (fresh && d && d.S && d.S.teams){ S = d.S; fresh = false; save(); toast("Jogo recuperado"); broadcast(); render(); }
+        fresh = false; return;
+      }
+      onMsg(d);
     });
+    client.on("reconnect", () => { net = "a ligar"; render(); });
+    client.on("offline", () => { net = "offline"; render(); });
+    client.on("close", () => { if (net === "online"){ net = "a ligar"; render(); } });
   }
 
   /* ----- render ----- */
@@ -642,6 +652,9 @@ function Host(){
         return `<button class="team c${t.c} ${sel?"target":""}" data-act="dropTeam" data-id="${t.id}"><h3>${esc(t.name)}</h3><span class="n">${m.length} ${m.length===1?"jogador":"jogadores"}</span>
         <div class="chips">${m.map(p => `<span class="pchip ${sel===p.id?"sel":""}" data-act="pick" data-id="${p.id}">${esc(p.name)}</span>`).join("")}</div></button>`; }).join("")}</div>
       <div><div class="label" style="margin-bottom:6px">Sem equipa</div><div class="pool">${unassigned.length ? unassigned.map(p => `<button class="pchip ${sel===p.id?"sel":""}" data-act="pick" data-id="${p.id}">${esc(p.name)}</button>`).join("") : '<span class="muted">Ninguém à espera.</span>'}</div></div>
+      ${sel && S.players[sel] ? `<div class="confirm row"><b class="grow">${esc(S.players[sel].name)}</b>${confirmDel === sel
+          ? `<button class="btn sm coral" data-act="delPlayer" data-id="${sel}">Sim, remover</button><button class="btn sm ghost" data-act="noDel">Cancelar</button>`
+          : `<button class="btn sm ghost" data-act="askDel" data-id="${sel}">Remover do jogo</button>`}</div>` : ""}
       <div class="row">
         <button class="btn sm ghost" data-act="addTeam" ${S.teams.length>=6?"disabled":""}>+ Equipa</button>
         <button class="btn sm ghost" data-act="shuffle">Baralhar equipas</button>
@@ -699,8 +712,8 @@ function Host(){
       $app.innerHTML = `<div class="bigscreen"><div class="wrap stack" style="max-width:900px"><div class="label" style="color:var(--gold2)">Cristina 50 · Classificação</div><h1>Quem conhece melhor a <em style="color:var(--gold2)">Cristina</em>?</h1>${scoreHTML(S.teams, scoresOf(S))}<button class="btn gold" data-act="big">Fechar</button></div></div>`;
       return;
     }
-    const online = conns.size ? [...conns.values()].filter(Boolean).length : 0;
-    const status = `<span class="status ${net==="online"?"on":net==="offline"?"off":""}"><i></i>${net==="online"?"Sala aberta · "+online+" ligados":net==="offline"?"Sem rede · a tentar":"A abrir a sala…"}</span>`;
+    const online = Object.keys(S.players).length;
+    const status = `<span class="status ${net==="online"?"on":net==="offline"?"off":""}"><i></i>${net==="online"?"Sala aberta · "+online+" jogadores":net==="offline"?"Sem rede · a tentar":"A abrir a sala…"}</span>`;
     let body = "";
     if (tab === "sala"){
       body = `<div class="card stack"><h2>Convida para a festa</h2><p>Envia este link a cada convidado, ou mostra o código para lerem com a câmara.</p>
@@ -727,7 +740,9 @@ function Host(){
           return `<div class="mitem"><div class="row"><b class="grow">${esc(p.name)} ${t?`<span class="t${t.c}">· ${esc(t.name)}</span>`:""}</b>${p.approved?'<span class="tag ok">Aprovada</span>':p.done?'<span class="tag wait">Por aprovar</span>':'<span class="tag go">Em curso</span>'}</div>
           <div class="muted">${p.mission!=null?esc(MISSIONS[p.mission]):"Ainda não tirou carta"}${p.rejected&&p.rejected.length?` · trocou ${p.rejected.length}×`:""}</div>
           ${photos[p.id]?`<img class="photo" src="${photos[p.id]}" alt="Prova da missão de ${esc(p.name)}">`:""}
-          ${p.done?`<div class="row"><button class="btn sm ${p.approved?"ghost":"teal"}" data-act="approve" data-id="${p.id}">${p.approved?"Retirar aprovação":"Aprovar · +3"}</button></div>`:""}</div>`; }).join("") : '<p class="muted">Ainda ninguém entrou.</p>'}</div>`;
+          <div class="row">${p.done?`<button class="btn sm ${p.approved?"ghost":"teal"}" data-act="approve" data-id="${p.id}">${p.approved?"Retirar aprovação":"Aprovar · +3"}</button>`:""}<span class="grow"></span>${confirmDel === p.id
+            ? `<button class="btn sm coral" data-act="delPlayer" data-id="${p.id}">Sim, remover</button><button class="btn sm ghost" data-act="noDel">Não</button>`
+            : `<button class="btn sm ghost" data-act="askDel" data-id="${p.id}">Remover</button>`}</div></div>`; }).join("") : '<p class="muted">Ainda ninguém entrou.</p>'}</div>`;
     }
     if (tab === "pontos"){
       body = `<div class="card stack"><h2>Classificação</h2>${scoreHTML(S.teams, scoresOf(S))}<button class="btn full gold" data-act="reveal">Revelar o vencedor</button><button class="btn full ghost" data-act="big">Ecrã grande</button></div>
@@ -744,7 +759,10 @@ function Host(){
     const tb = e.target.closest("[data-tab]"); if (tb){ tab = tb.dataset.tab; sel = null; confirmReset = false; render(); window.scrollTo(0,0); return; }
     const el = e.target.closest("[data-act]"); if (!el) return;
     const a = el.dataset.act, id = el.dataset.id;
-    if (a === "pick"){ e.stopPropagation(); sel = sel === id ? null : id; return render(); }
+    if (a === "pick"){ e.stopPropagation(); sel = sel === id ? null : id; confirmDel = null; return render(); }
+    if (a === "askDel"){ confirmDel = id; return render(); }
+    if (a === "noDel"){ confirmDel = null; return render(); }
+    if (a === "delPlayer"){ const nm = S.players[id] && S.players[id].name; delete S.players[id]; delete photos[id]; kick(id); sel = null; confirmDel = null; toast((nm || "Jogador") + " removido"); return changed(); }
     if (a === "dropTeam"){ if (sel && S.players[sel]){ S.players[sel].team = id; sel = null; changed(); } return; }
     if (a === "addTeam" && S.teams.length < 6){ const used = new Set(S.teams.map(t => t.c)); const c = [0,1,2,3,4,5].find(x => !used.has(x)); S.teams.push({id: rid(5), name: TEAM_NAMES[c], c}); return changed(); }
     if (a === "delTeam" && S.teams.length > 2){ S.teams = S.teams.filter(t => t.id !== id); Object.values(S.players).forEach(p => { if (p.team === id) p.team = null; }); return changed(); }
@@ -768,39 +786,40 @@ function Host(){
     if (a === "copy"){ const l = guestLink(); (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(() => toast("Link copiado"), () => { const r = document.createRange(); r.selectNodeContents(document.getElementById("lk")); getSelection().removeAllRanges(); getSelection().addRange(r); toast("Seleciona e copia o link"); }); return; }
     if (a === "askReset"){ confirmReset = true; return render(); }
     if (a === "noReset"){ confirmReset = false; return render(); }
-    if (a === "reset"){ S = blank(); confirmReset = false; for (const k in photos) delete photos[k]; try{ idb && idb.transaction("photos","readwrite").objectStore("photos").clear(); }catch(e){} toast("Jogo recomeçado"); return changed(); }
+    if (a === "reset"){ const old = Object.keys(S.players); S = blank(); old.forEach(kick); confirmReset = false; for (const k in photos) delete photos[k]; try{ idb && idb.transaction("photos","readwrite").objectStore("photos").clear(); }catch(e){} toast("Jogo recomeçado"); return changed(); }
   });
   $app.addEventListener("change", e => {
     const el = e.target; if (el.dataset.act === "rename"){ const t = S.teams.find(x => x.id === el.dataset.id); if (t){ t.name = el.value.trim().slice(0, 22) || t.name; changed(); } }
   });
 
-  render(); startPeer();
+  render(); startNet();
 }
 
 /* ================= CONVIDADO ================= */
 function Guest(room){
   let pid = ls.get("c50-pid", null); if (!pid){ pid = rid(12); ls.set("c50-pid", pid); }
   let name = ls.get("c50-name", "");
-  let V = null, tab = "jogo", net = "a ligar", peer = null, conn = null, retryT = null, flip = false, sending = false;
+  let V = null, tab = "jogo", net = "a ligar", client = null, flip = false, sending = false, helloT = null;
   let draft = ls.get("c50-draft", {}); let seenReveal = null;
 
-  function send(m){ if (conn && conn.open){ try{ conn.send({...m, pid}); return true; }catch(e){} } toast("Sem ligação. A tentar de novo…"); return false; }
+  function send(m){ if (client && client.connected){ try{ client.publish(TOPIC + "/in", JSON.stringify({...m, pid}), {qos: 1}); return true; }catch(e){} } toast("Sem ligação. A tentar de novo…"); return false; }
+  function hello(){ if (name && client && client.connected) client.publish(TOPIC + "/in", JSON.stringify({t: "hello", pid, name}), {qos: 1}); }
+  function onState(d){ if (d && d.t === "state"){ if (!d.s.me && name) hello(); const prevPhase = V && V.phase && V.phase.k + V.phase.q + "." + V.phase.mq; V = d.s; if (seenReveal === null) seenReveal = V.revealAt; else if (V.revealAt && V.revealAt !== seenReveal){ seenReveal = V.revealAt; setTimeout(() => runReveal(V.teams, V.scores), 200); } if (V.phase && prevPhase !== V.phase.k + V.phase.q + "." + V.phase.mq && tab !== "missao") tab = V.me && V.me.team ? "jogo" : tab; render(); } }
   function connect(){
-    clearTimeout(retryT);
-    if (peer){ try{ peer.destroy(); }catch(e){} }
     net = "a ligar"; render();
-    peer = new Peer({debug: 0});
-    peer.on("open", () => {
-      conn = peer.connect(room, {reliable: true});
-      conn.on("open", () => { net = "online"; if (name) conn.send({t: "hello", pid, name}); render(); });
-      conn.on("data", d => { if (d && d.t === "state"){ if (!d.s.me && name) conn.send({t: "hello", pid, name}); const prevPhase = V && V.phase && V.phase.k + V.phase.q + "." + V.phase.mq; V = d.s; if (seenReveal === null) seenReveal = V.revealAt; else if (V.revealAt && V.revealAt !== seenReveal){ seenReveal = V.revealAt; setTimeout(() => runReveal(V.teams, V.scores), 200); } if (V.phase && prevPhase !== V.phase.k + V.phase.q + "." + V.phase.mq && tab !== "missao") tab = V.me && V.me.team ? "jogo" : tab; render(); } });
-      conn.on("close", retry); conn.on("error", retry);
-      setTimeout(() => { if (net !== "online") retry(); }, 9000);
+    client = mqtt.connect(BROKER, {...MQ, clientId: "c50g-" + pid + "-" + rid(4), clean: true});
+    client.on("connect", () => {
+      net = "online";
+      client.subscribe(TOPIC + "/p/" + pid, {qos: 1});
+      hello();
+      // se o apresentador ainda não respondeu, volta a dizer olá
+      clearInterval(helloT); helloT = setInterval(() => { if (!V || !V.me) hello(); }, 5000);
+      render();
     });
-    peer.on("error", retry);
-    peer.on("disconnected", retry);
+    client.on("message", (topic, msg) => { let d; try{ d = JSON.parse(msg.toString()); }catch(e){ return; } onState(d); });
+    client.on("reconnect", () => { net = "retry"; render(); });
+    client.on("offline", () => { net = "retry"; render(); });
   }
-  function retry(){ if (net === "retry") return; net = "retry"; render(); clearTimeout(retryT); retryT = setTimeout(connect, 3000); }
 
   function welcome(){
     $app.innerHTML = `<section class="hero"><div class="staff"></div><div class="wrap">
@@ -812,7 +831,7 @@ function Guest(room){
       <button class="btn gold full" type="submit">Entrar na festa</button></form></div></section>`;
     document.getElementById("join").addEventListener("submit", e => {
       e.preventDefault(); const v = document.getElementById("nm").value.trim(); if (!v) return;
-      name = v.slice(0, 24); ls.set("c50-name", name); if (conn && conn.open) conn.send({t: "hello", pid, name}); render();
+      name = v.slice(0, 24); ls.set("c50-name", name); hello(); render();
     });
   }
 
@@ -871,6 +890,7 @@ function Guest(room){
 
   function render(){
     if (!name) return welcome();
+    if (V && !V.me) V = null;
     if (!V){
       $app.innerHTML = topHTML("Cristina 50", "Olá, <em>" + esc(name) + "</em>") + `<main class="wrap"><div class="card wait"><h2>${net==="retry"?"À procura da festa…":"A ligar à festa…"}</h2><p style="margin-top:6px">Confirma que tens internet. O apresentador tem de ter o jogo aberto.</p></div></main>`;
       return;
@@ -896,8 +916,17 @@ function Guest(room){
   function shrink(file){
     return new Promise((res, rej) => {
       const img = new Image(), url = URL.createObjectURL(file);
-      img.onload = () => { const m = 900, s = Math.min(1, m / Math.max(img.width, img.height)); const c = document.createElement("canvas"); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
-        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", .7)); };
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        for (const [m, q] of [[720,.6],[600,.5],[480,.45],[400,.4],[320,.35]]){
+          const sc = Math.min(1, m / Math.max(img.width, img.height)), c = document.createElement("canvas");
+          c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          const data = c.toDataURL("image/jpeg", q);
+          if (data.length < 52000) return res(data);
+        }
+        rej();
+      };
       img.onerror = rej; img.src = url;
     });
   }
@@ -920,16 +949,10 @@ function Guest(room){
 }
 
 /* ================= ARRANQUE ================= */
-if (!window.Peer){
+if (!window.mqtt){
   $app.innerHTML = `<main class="wrap"><div class="card" style="margin-top:30px"><h2>Não foi possível carregar o jogo</h2><p>Verifica a ligação à internet e recarrega a página.</p></div></main>`;
 } else if (IS_HOST) Host();
-else if (ROOM_PARAM) Guest(ROOM_PARAM);
-else {
-  $app.innerHTML = `<section class="hero"><div class="staff"></div><div class="wrap"><div class="jk">50 = meio século… ai ai ai!</div><div class="big">50</div><div class="name">Cristina</div>
-    <h2>Para jogar, abre o link que recebeste.</h2>
-    <p style="margin-top:10px;opacity:.85;max-width:420px">É o apresentador que envia o link da festa a cada convidado.</p>
-    <a class="btn gold" href="?apresentador" style="margin-top:22px;text-decoration:none">Sou o apresentador</a></div></section>`;
-}
+else Guest(ROOM);
 </script>
 </body>
 </html>
